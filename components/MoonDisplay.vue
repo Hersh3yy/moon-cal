@@ -1,32 +1,51 @@
 <template>
-    <div class="relative w-96 h-96 mx-auto">
-        <!-- Moon container with subtle glow effect -->
-        <div class="absolute inset-0 rounded-full bg-blue-500/20 blur-xl"></div>
-        <img :src="`/images/moon-images/${currentMoonImage}`" :alt="currentPhase"
-            class="absolute inset-0 w-full h-full object-contain transform transition-transform duration-1000 hover:scale-110" />
+    <div class="flex flex-col items-center justify-center space-y-6">
+        <div v-if="moonData" class="relative">
+            <!-- Moon image container with glow effect -->
+            <div class="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 relative rounded-full overflow-hidden
+                       shadow-[0_0_50px_rgba(255,255,255,0.2)]
+                       transition-transform duration-700 ease-in-out transform hover:scale-105">
+                <img :src="moonImage" 
+                     :alt="moonData.phase_name"
+                     class="w-full h-full object-cover"
+                     :class="{'animate-pulse': !moonImage}">
+            </div>
+            
+            <!-- Phase information -->
+            <div class="text-center mt-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">
+                    {{ moonData.phase_name }}
+                </h2>
+                <p class="text-lg text-gray-300">
+                    {{ moonData.illumination }}% illuminated
+                </p>
+            </div>
+        </div>
+        <div v-else class="w-48 h-48 md:w-64 md:h-64 animate-pulse bg-white/10 rounded-full">
+        </div>
     </div>
 </template>
 
 <script setup>
-const { moonStore } = useStore()
+const moonStore = useMoonStore()
+const { phaseToImage } = useMoonImage()
 
-// This would be a computed property that returns the correct image based on the phase
-const currentMoonImage = computed(() => {
-    const phase = moonStore.phase // This should be a number between 0 and 1
-    return getMoonImageForPhase(phase)
+const moonData = computed(() => moonStore.moonData)
+const moonImage = computed(() => {
+    if (!moonData.value) return null
+    // Convert the phase (0-1) to the corresponding image
+    return phaseToImage(moonData.value.phase)
 })
-
-const currentPhase = computed(() => moonStore.currentPhase)
-
-function getMoonImageForPhase(phase) {
-    // Map the phase number to the corresponding image
-    if (phase <= 0.125) return 'new-moon.png'
-    if (phase <= 0.25) return 'waxing-crescent.png'
-    if (phase <= 0.375) return 'first-quarter.png'
-    if (phase <= 0.625) return 'waxing-gibbous.png'
-    if (phase <= 0.75) return 'full-moon.png'
-    if (phase <= 0.875) return 'waning-gibbous.png'
-    if (phase <= 0.975) return 'last-quarter.png'
-    return 'waning-crescent.png'
-}
 </script>
+
+<style scoped>
+/* Add a subtle rotation animation on hover */
+.moon-image-container:hover {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+}
+</style>

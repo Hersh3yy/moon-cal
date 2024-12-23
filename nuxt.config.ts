@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
+  css: ["assets/css/tailwind.css"],
   postcss: {
     plugins: {
       tailwindcss: {},
@@ -13,5 +14,14 @@ export default defineNuxtConfig({
       "@headlessui/vue",
       "@heroicons/vue",
     ]
+  },
+  modules: [
+    "@pinia/nuxt"
+  ],
+  runtimeConfig: {
+    public: {
+      moonApiKey: process.env.NUXT_PUBLIC_MOON_API_KEY,
+      geocodeApiKey: process.env.NUXT_PUBLIC_GEOCODE_API_KEY
+    }
   }
 })

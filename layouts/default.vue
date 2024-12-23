@@ -1,24 +1,21 @@
 <template>
-    <div class="min-h-screen bg-gradient-to-b from-black via-purple-900 to-blue-900">
-        <header class="py-4 px-6 bg-black/30 backdrop-blur-sm">
-            <nav class="max-w-7xl mx-auto flex items-center justify-between">
-                <NuxtLink to="/" class="text-white text-2xl font-bold">Moon Phase 🌙</NuxtLink>
-                <div class="flex items-center space-x-6">
-                    <NuxtLink to="/calendar" class="text-white hover:text-gray-300">Calendar</NuxtLink>
-                    <NuxtLink to="/about" class="text-white hover:text-gray-300">About</NuxtLink>
-                </div>
-            </nav>
-        </header>
-
-        <!-- Star background with animation -->
-        <div class="fixed inset-0 pointer-events-none">
-            <div
-                class="absolute inset-0 bg-[radial-gradient(white,_rgba(255,255,255,.2)_2px,_transparent_40px)] bg-[length:50px_50px]">
-            </div>
-        </div>
-
-        <main class="relative z-10">
+    <div class="min-h-screen bg-cover bg-center text-white" style="background-image: url('/images/starry-background.jpg');">
+        <!-- Main content -->
+        <main class="relative z-10 max-w-3xl mx-auto px-4 flex flex-col items-center">
             <slot />
         </main>
     </div>
 </template>
+
+<style>
+html, body {
+    background-color: black;
+    min-height: 100vh;
+}
+
+body {
+    background-size: cover; /* Ensure the background covers the entire area */
+    background-position: center; /* Center the background image */
+    color: white; /* Set default text color to white */
+}
+</style>
