@@ -14,14 +14,17 @@
                 <div class="mb-8">
                     <input type="text" v-model="city" placeholder="Enter city name"
                         class="p-2 rounded-md border border-gray-300 text-black" />
-                    <button @click="getCoordinates" class="ml-2 p-2 bg-blue-500 text-white rounded-md">Get Moon
-                        Data</button>
+                    <button @click="getCoordinates" class="ml-2 p-2 bg-blue-500 text-white rounded-md">
+                        Get Moon Data
+                    </button>
                 </div>
 
                 <div class="bg-black/30 backdrop-blur-sm rounded-xl p-4 md:p-8 lg:p-12 shadow-xl">
                     <div v-if="moonStore.loading" class="flex flex-col items-center justify-center py-12">
                         <div class="moon-loader mb-4"></div>
-                        <p class="text-white text-lg animate-pulse">Loading moon data...</p>
+                        <p class="text-white text-lg animate-pulse">
+                            Loading moon data...
+                        </p>
                     </div>
 
                     <div v-else-if="moonStore.moonData" class="space-y-8 md:space-y-12">
@@ -38,18 +41,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useMoonStore } from '@/stores/moon'
+import { ref, onMounted } from "vue";
+import { useMoonStore } from "@/stores/moon";
 
-const moonStore = useMoonStore()
-const city = ref('Amsterdam') // Set default city to Amsterdam
+const moonStore = useMoonStore();
+const city = ref("Amsterdam"); // Set default city to Amsterdam
 
 const getCoordinates = async () => {
-    await moonStore.getCoordinatesFromCity(city.value)
-}
+    await moonStore.getCoordinatesFromCity(city.value);
+};
 
 // Fetch moon data when the component is mounted
 onMounted(() => {
-    getCoordinates()
-})
+    getCoordinates();
+});
 </script>
