@@ -1,3 +1,4 @@
+<!-- Moon Display-->
 <template>
     <div class="flex flex-col items-center justify-center space-y-6">
         <div v-if="moonData" class="relative">
@@ -17,7 +18,7 @@
                     {{ moonData.phase_name }}
                 </h2>
                 <p class="text-lg text-gray-300">
-                    {{ moonData.illumination }}% illuminated
+                    {{ moonData.moon.illumination }} illuminated
                 </p>
             </div>
         </div>

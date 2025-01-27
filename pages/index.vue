@@ -1,58 +1,99 @@
+<!-- pages/index.vue -->
 <template>
-    <div class="min-h-[calc(100vh-4rem)] w-full flex flex-col items-center">
-        <div class="container mx-auto px-4 py-8 md:py-12">
-            <div class="max-w-4xl mx-auto">
-                <div class="text-center mb-8 md:mb-12">
-                    <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-                        Current Moon Phase
-                    </h1>
-                    <p class="text-gray-300 text-lg md:text-xl">
-                        Discover the moon's current position and phase
-                    </p>
-                </div>
-
-                <div class="mb-8">
-                    <input type="text" v-model="city" placeholder="Enter city name"
-                        class="p-2 rounded-md border border-gray-300 text-black" />
-                    <button @click="getCoordinates" class="ml-2 p-2 bg-blue-500 text-white rounded-md">
-                        Get Moon Data
-                    </button>
-                </div>
-
-                <div class="bg-black/30 backdrop-blur-sm rounded-xl p-4 md:p-8 lg:p-12 shadow-xl">
-                    <div v-if="moonStore.loading" class="flex flex-col items-center justify-center py-12">
-                        <div class="moon-loader mb-4"></div>
-                        <p class="text-white text-lg animate-pulse">
-                            Loading moon data...
-                        </p>
-                    </div>
-
-                    <div v-else-if="moonStore.moonData" class="space-y-8 md:space-y-12">
-                        <MoonDisplay />
-                        <MoonInfo />
-                    </div>
-                </div>
-
-                <!-- Debug Information -->
-                <DebugInfo />
+    <div class="w-full">
+        <main class="px-4 py-8">
+            <!-- Date and Location -->
+            <div class="text-center mb-8">
+                <h2 class="text-lg font-poppins">{{ currentDate }}</h2>
+                <LocationSelector class="mt-4" />
             </div>
-        </div>
+
+            <!-- Display Mode Toggle -->
+            <ModeToggle v-model:mode="displayMode" />
+
+            <!-- Error State -->
+            <div v-if="moonStore.error" class="text-red-500 text-center py-4">
+                {{ moonStore.error }}
+            </div>
+
+            <!-- Loading State -->
+            <div v-else-if="moonStore.loading" class="flex justify-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+            </div>
+
+            <!-- Content Grid -->
+            <div v-else-if="moonStore.moonData" class="md:grid md:grid-cols-12 md:gap-8">
+                <!-- Left Column -->
+                <div class="hidden md:block md:col-span-3 space-y-4">
+                    <MoonScience v-if="displayMode === 'science'" />
+                    <MoonAstrology v-else />
+                </div>
+
+                <!-- Center Column -->
+                <div class="md:col-span-6">
+                    <MoonDisplay />
+
+                    <!-- Phase Cards -->
+                    <div class="space-y-4 mt-8">
+                        <div class="moon-card">
+                            <div class="flex items-center justify-between">
+                                <span class="moon-text-secondary">Phase:</span>
+                                <span class="moon-text-primary">
+                                    {{ moonStore.moonData?.moon.phase_name }}
+                                    {{ moonStore.emoji }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="moon-card">
+                            <div class="flex items-center justify-between">
+                                <span class="moon-text-secondary">Next full moon in:</span>
+                                <span class="moon-text-primary">{{ formatCountdown }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="md:col-span-3 mt-8 md:mt-0 space-y-4">
+                    <MoonTimes />
+                </div>
+            </div>
+        </main>
     </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from "vue";
-import { useMoonStore } from "@/stores/moon";
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useMoonStore } from '@/stores/moon'
 
-const moonStore = useMoonStore();
-const city = ref("Amsterdam"); // Set default city to Amsterdam
+const moonStore = useMoonStore()
+const displayMode = ref('science')
 
-const getCoordinates = async () => {
-    await moonStore.getCoordinatesFromCity(city.value);
-};
+const currentDate = computed(() => {
+    return new Date().toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    })
+})
 
-// Fetch moon data when the component is mounted
-onMounted(() => {
-    getCoordinates();
-});
+const formatCountdown = computed(() => {
+    const nextFull = moonStore.moonData?.moon_phases?.full_moon?.next
+    if (!nextFull) return 'Loading...'
+
+    const days = nextFull.days_ahead || 0
+    const hours = nextFull.hours || 0
+    const minutes = nextFull.minutes || 0
+
+    return `${days}d, ${hours}h, ${minutes}m`
+})
+
+onMounted(async () => {
+    try {
+        await moonStore.fetchMoonData()
+    } catch (error) {
+        console.error('Failed to fetch initial moon data:', error)
+    }
+})
 </script>

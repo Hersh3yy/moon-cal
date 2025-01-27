@@ -1,3 +1,4 @@
+<!-- Moon Info-->
 <template>
     <div v-if="moonData" class="text-white space-y-4 md:space-y-6 relative z-10">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">

@@ -1,0 +1,45 @@
+/* assets/css/app.css */
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base font families */
+@layer base {
+  .font-audiowide {
+    font-family: 'Audiowide', cursive;
+  }
+  
+  .font-poppins {
+    font-family: 'Poppins', sans-serif;
+  }
+}
+
+/* Component classes */
+@layer components {
+  .moon-card {
+    @apply bg-zinc-400/10 backdrop-blur-sm rounded-lg p-4 w-full mb-4;
+  }
+
+  .moon-text-primary {
+    @apply text-white text-lg font-audiowide;
+  }
+
+  .moon-text-secondary {
+    @apply text-white text-base font-poppins font-extralight;
+  }
+
+  .moon-display-toggle {
+    @apply flex gap-2 mb-4;
+  }
+
+  .moon-toggle-btn {
+    @apply bg-zinc-400/10 rounded-md px-3 py-1 font-poppins;
+  }
+
+  .moon-toggle-btn.active {
+    @apply bg-zinc-400/20;
+  }
+}
