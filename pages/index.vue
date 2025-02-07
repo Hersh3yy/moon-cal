@@ -8,9 +8,6 @@
                 <LocationSelector class="mt-4" />
             </div>
 
-            <!-- Display Mode Toggle -->
-            <ModeToggle v-model:mode="displayMode" />
-
             <!-- Error State -->
             <div v-if="moonStore.error" class="text-red-500 text-center py-4">
                 {{ moonStore.error }}
@@ -21,42 +18,24 @@
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
             </div>
 
-            <!-- Content Grid -->
-            <div v-else-if="moonStore.moonData" class="md:grid md:grid-cols-12 md:gap-8">
-                <!-- Left Column -->
-                <div class="hidden md:block md:col-span-3 space-y-4">
-                    <MoonScience v-if="displayMode === 'science'" />
-                    <MoonAstrology v-else />
-                </div>
-
-                <!-- Center Column -->
-                <div class="md:col-span-6">
+            <!-- Content Area -->
+            <div v-else-if="moonStore.moonData" class="space-y-8">
+                <!-- Moon Display (Always Centered) -->
+                <div class="flex justify-center">
                     <MoonDisplay />
-
-                    <!-- Phase Cards -->
-                    <div class="space-y-4 mt-8">
-                        <div class="moon-card">
-                            <div class="flex items-center justify-between">
-                                <span class="moon-text-secondary">Phase:</span>
-                                <span class="moon-text-primary">
-                                    {{ moonStore.moonData?.moon.phase_name }}
-                                    {{ moonStore.emoji }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="moon-card">
-                            <div class="flex items-center justify-between">
-                                <span class="moon-text-secondary">Next full moon in:</span>
-                                <span class="moon-text-primary">{{ formatCountdown }}</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Right Column -->
-                <div class="md:col-span-3 mt-8 md:mt-0 space-y-4">
-                    <MoonTimes />
+                <!-- Widget Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Always Visible Widgets -->
+                    <WidgetsMoonDistance title="Moon Distance" />
+                    <WidgetsLunarCycle title="Lunar Cycle" />
+                    <WidgetsNextEclipse title="Next Eclipse" />
+                    <WidgetsMoonSign title="Moon Sign" />
+                    <WidgetsSunSign title="Sun Sign" />
+                    <WidgetsMoonPhase title="Moon Phase" />
+                    <WidgetsSunTimes title="Sun Times" />
+                    <WidgetsMoonTimes title="Moon Times" />
                 </div>
             </div>
         </main>
@@ -64,11 +43,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, provide } from 'vue'
 import { useMoonStore } from '@/stores/moon'
 
 const moonStore = useMoonStore()
-const displayMode = ref('science')
+provide('displayMode', ref('both'))
 
 const currentDate = computed(() => {
     return new Date().toLocaleDateString('en-US', {
@@ -76,17 +55,6 @@ const currentDate = computed(() => {
         month: 'long',
         year: 'numeric'
     })
-})
-
-const formatCountdown = computed(() => {
-    const nextFull = moonStore.moonData?.moon_phases?.full_moon?.next
-    if (!nextFull) return 'Loading...'
-
-    const days = nextFull.days_ahead || 0
-    const hours = nextFull.hours || 0
-    const minutes = nextFull.minutes || 0
-
-    return `${days}d, ${hours}h, ${minutes}m`
 })
 
 onMounted(async () => {

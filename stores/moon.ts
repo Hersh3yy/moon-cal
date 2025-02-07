@@ -3,6 +3,11 @@ import { defineStore } from "pinia";
 import { useCoordinateLookup } from "@/composables/useCoordinateLookup";
 import { useRuntimeConfig } from "#app";
 
+interface Coordinates {
+    lat: number;
+    lon: number;
+}
+
 interface MoonPhase {
   timestamp: number;
   datestamp: string;
@@ -40,20 +45,78 @@ interface Location {
 }
 
 interface MoonData {
-  timestamp?: number;
-  datestamp?: string;
-  moon?: {
-    phase?: number;
-    phase_name?: string;
-    illumination?: string;
-    emoji?: string;
-    zodiac?: {
-      sun_sign?: string;
-      moon_sign?: string;
+    timestamp: number;
+    datestamp: string;
+    plan: string;
+    sun: {
+        sunrise: number;
+        sunrise_timestamp: string;
+        sunset: number;
+        sunset_timestamp: string;
+        solar_noon: string;
+        day_length: string;
+        sun_altitude: number;
+        sun_distance: number;
+        sun_azimuth: number;
+        next_solar_eclipse?: {
+            timestamp: number;
+            datestamp: string;
+            type: string;
+            visibility_regions: string;
+        };
     };
-  };
-  moon_phases?: MoonPhases;
-  location?: Location;
+    moon: {
+        phase: number;
+        phase_name: string;
+        major_phase: string;
+        stage: string;
+        illumination: string;
+        age_days: number;
+        lunar_cycle: string;
+        emoji: string;
+        zodiac: {
+            sun_sign: string;
+            moon_sign: string;
+        };
+        moonrise: string;
+        moonrise_timestamp: number;
+        moonset: string;
+        moonset_timestamp: number;
+        moon_altitude: number;
+        moon_distance: number;
+        moon_azimuth: number;
+        moon_parallactic_angle: number;
+        next_lunar_eclipse: {
+            timestamp: number;
+            datestamp: string;
+            type: string;
+            visibility_regions: string;
+        };
+        detailed: {
+            position: {
+                altitude: number;
+                azimuth: number;
+                phase_angle: number;
+                illumination: number;
+            };
+            visibility: {
+                visible_hours: number;
+                best_viewing_time: string;
+                visibility_rating: string;
+                illumination: string;
+                viewing_conditions: {
+                    phase_quality: string;
+                    recommended_equipment: {
+                        filters: string;
+                        telescope: string;
+                        best_magnification: string;
+                    };
+                };
+            };
+        };
+    };
+    moon_phases: MoonPhases;
+    location: Location;
 }
 
 
