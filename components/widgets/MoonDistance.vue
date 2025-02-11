@@ -2,7 +2,7 @@
     <UiBaseCard :title="props.title" :mode="props.mode" :colSpan="props.colSpan">
         <div class="moon-card-row">
             <span class="moon-text-secondary moon-card-text font-poppins">Distance:</span>
-            <span class="moon-text-primary moon-card-text">{{ formatDistance(moonData?.moon?.moon_distance) }}</span>
+            <span class="moon-text-primary moon-card-text">{{ formatDistance(moonData?.moon?.detailed?.position?.distance) }}</span>
         </div>
     </UiBaseCard>
 </template>

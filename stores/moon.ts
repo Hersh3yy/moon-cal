@@ -98,6 +98,7 @@ interface MoonData {
                 azimuth: number;
                 phase_angle: number;
                 illumination: number;
+                distance: number;
             };
             visibility: {
                 visible_hours: number;
