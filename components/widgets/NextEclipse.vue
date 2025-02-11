@@ -23,7 +23,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
     mode: 'science',
-    colSpan: 1
+    colSpan: 2
 })
 
 const { moonData } = storeToRefs(useMoonStore())

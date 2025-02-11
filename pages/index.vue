@@ -14,13 +14,13 @@
             <LayoutMainContent v-else-if="moonStore.moonData">
                 <WidgetsMoonDistance title="Moon Distance" />
                 <WidgetsLunarCycle title="Lunar Cycle" />
-                <WidgetsNextEclipse title="Next Eclipse" />
                 <WidgetsMoonSign title="Moon Sign" />
                 <WidgetsSunSign title="Sun Sign" />
                 <WidgetsMoonPhase title="Moon Phase" />
                 <WidgetsSunTimes title="Sun Times" />
                 <WidgetsMoonTimes title="Moon Times" />
                 <WidgetsNextFullMoon title="Next Full Moon" />
+                <WidgetsNextEclipse title="Next Eclipse" />
             </LayoutMainContent>
         </main>
     </div>
