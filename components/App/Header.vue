@@ -5,7 +5,7 @@
             <div class="flex items-center justify-between h-14">
                 <!-- Logo -->
                 <NuxtLink to="/" class="font-audiowide text-3xl text-white">
-                    LUNATRICK
+                    LUNATRACK
                 </NuxtLink>
 
                 <!-- Desktop Navigation -->
