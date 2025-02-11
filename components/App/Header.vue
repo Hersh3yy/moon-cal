@@ -45,8 +45,6 @@
 const isOpen = ref(false)
 
 const menuItems = [
-    { label: 'Year calendar', path: '/calendar' },
-    { label: 'Blog', path: '/blog' },
-    { label: 'About', path: '/about' }
+    { label: 'Blog', path: '/blog' }
 ]
 </script>
