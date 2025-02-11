@@ -20,6 +20,7 @@
                 <WidgetsMoonPhase title="Moon Phase" />
                 <WidgetsSunTimes title="Sun Times" />
                 <WidgetsMoonTimes title="Moon Times" />
+                <WidgetsNextFullMoon title="Next Full Moon" />
             </LayoutMainContent>
         </main>
     </div>

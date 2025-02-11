@@ -4,7 +4,10 @@
         <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
                 <span class="moon-text-secondary">Current Phase:</span>
-                <span class="moon-text-primary">{{ moonData?.moon?.phase_name }}</span>
+                <div class="flex items-center gap-2">
+                    <span class="moon-text-primary">{{ moonData?.moon?.phase_name }}</span>
+                    <span class="text-xl">{{ moonData?.moon?.emoji }}</span>
+                </div>
             </div>
             <p class="text-sm opacity-75 text-right">{{ moonData?.moon?.illumination }} illuminated</p>
         </div>
@@ -27,4 +30,4 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { moonData } = storeToRefs(useMoonStore())
-</script> 
+</script>
