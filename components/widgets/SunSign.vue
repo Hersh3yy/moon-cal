@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useMoonStore } from '@/stores/moon'
+import type { BaseWidgetProps } from '@/types/widget'
 import ariesIcon from '~/assets/images/zodiac/aries.svg'
 import taurusIcon from '~/assets/images/zodiac/taurus.svg'
 import geminiIcon from '~/assets/images/zodiac/gemini.svg'
@@ -30,14 +31,7 @@ import capricornIcon from '~/assets/images/zodiac/capricorn.svg'
 import aquariusIcon from '~/assets/images/zodiac/aquarius.svg'
 import piscesIcon from '~/assets/images/zodiac/pisces.svg'
 
-interface Props {
-    title?: string
-    mode?: 'science' | 'astrology' | 'both'
-    colSpan?: 1 | 2
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    title: 'Sun Sign',
+const props = withDefaults(defineProps<BaseWidgetProps>(), {
     mode: 'astrology',
     colSpan: 1
 })

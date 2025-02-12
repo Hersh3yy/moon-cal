@@ -12,15 +12,15 @@
             <LayoutLoadingSpinner v-else-if="moonStore.loading" />
 
             <LayoutMainContent v-else-if="moonStore.moonData">
-                <WidgetsMoonDistance title="Moon Distance" />
-                <WidgetsLunarCycle title="Lunar Cycle" />
-                <WidgetsMoonSign title="Moon Sign" />
-                <WidgetsSunSign title="Sun Sign" />
-                <WidgetsMoonPhase title="Moon Phase" />
-                <WidgetsSunTimes title="Sun Times" />
-                <WidgetsMoonTimes title="Moon Times" />
-                <WidgetsNextFullMoon title="Next Full Moon" />
-                <WidgetsNextEclipse title="Next Eclipse" />
+                <WidgetsMoonDistance title="Moon Distance from Earth" />
+                <WidgetsLunarCycle title="Current Lunar Cycle" />
+                <WidgetsMoonSign title="Current Moon Sign" />
+                <WidgetsSunSign title="Current Sun Sign" />
+                <WidgetsMoonPhase title="Current Moon Phase" />
+                <WidgetsSunTimes title="Today's Sun Times" />
+                <WidgetsMoonTimes title="Today's Moon Times" />
+                <WidgetsNextFullMoon title="Next Full Moon Event" />
+                <WidgetsNextEclipse title="Next Lunar Eclipse" />
             </LayoutMainContent>
         </main>
     </div>

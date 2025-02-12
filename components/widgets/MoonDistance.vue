@@ -1,7 +1,6 @@
 <template>
     <UiBaseCard :title="props.title" :mode="props.mode" :colSpan="props.colSpan">
         <div class="moon-card-row">
-            <span class="moon-text-secondary moon-card-text font-poppins">Distance:</span>
             <span class="moon-text-primary moon-card-text">{{ formatDistance(moonData?.moon?.detailed?.position?.distance) }}</span>
         </div>
     </UiBaseCard>
@@ -10,14 +9,9 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useMoonStore } from '@/stores/moon'
+import type { BaseWidgetProps } from '@/types/widget'
 
-interface Props {
-    title?: string
-    mode?: 'science' | 'astrology' | 'both'
-    colSpan?: 1 | 2
-}
-
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<BaseWidgetProps>(), {
     mode: 'science',
     colSpan: 1
 })

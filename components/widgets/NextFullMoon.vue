@@ -3,7 +3,6 @@
     <UiBaseCard :title="props.title" :mode="props.mode" :colSpan="props.colSpan">
         <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
-                <span class="moon-text-secondary">Next Full Moon:</span>
                 <span class="moon-text-primary">{{ moonData?.moon_phases?.full_moon?.next?.name }}</span>
             </div>
             <div class="flex items-center gap-4">
@@ -24,9 +23,11 @@
         </div>
     </UiBaseCard>
 </template>
+
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useMoonStore } from '@/stores/moon'
+import type { BaseWidgetProps } from '@/types/widget'
 import beaverMoonIcon from '~/assets/images/full-moon-types/beaver-moon.png'
 import buckMoonIcon from '~/assets/images/full-moon-types/buck-moon.png'
 import coldMoonIcon from '~/assets/images/full-moon-types/cold-moon.png'
@@ -39,14 +40,7 @@ import sturgeonMoonIcon from '~/assets/images/full-moon-types/sturgeon-moon.png'
 import wolfMoonIcon from '~/assets/images/full-moon-types/wolf-moon.png'
 import wormMoonIcon from '~/assets/images/full-moon-types/worm-moon.png'
 
-interface Props {
-    title?: string
-    mode?: 'science' | 'astrology' | 'both'
-    colSpan?: 1 | 2
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    title: 'Next Full Moon',
+const props = withDefaults(defineProps<BaseWidgetProps>(), {
     mode: 'both',
     colSpan: 2
 })
