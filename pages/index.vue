@@ -29,9 +29,17 @@
 <script setup lang="ts">
 import { ref, provide, onMounted } from 'vue'
 import { useMoonStore } from '@/stores/moon'
+import { useSeo } from '@/composables/useSeo'
 
 const moonStore = useMoonStore()
 provide('displayMode', ref('both'))
+
+// Add SEO configuration
+useSeo({
+  title: 'Lunatrack - Your Complete Lunar Guide',
+  description: 'Track moon phases, distances, signs, and more with real-time lunar data. Get accurate information about moon cycles, eclipses, and celestial events.',
+  type: 'website'
+})
 
 onMounted(async () => {
     try {
