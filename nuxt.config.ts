@@ -16,6 +16,21 @@ export default defineNuxtConfig({
           src: 'https://cloud.umami.is/script.js',
           'data-website-id': '6313bd15-0072-466d-a1b6-bfcbb6664898',
           defer: true
+        },
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Lunatrack',
+            description: 'Your complete lunar guide with real-time moon data and celestial events',
+            url: 'https://lunatrack.info',
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: 'https://lunatrack.info/search?q={search_term_string}',
+              'query-input': 'required name=search_term_string'
+            }
+          })
         }
       ]
     }
@@ -65,20 +80,5 @@ export default defineNuxtConfig({
       moonApiKey: process.env.NUXT_PUBLIC_MOON_API_KEY,
       geocodeApiKey: process.env.NUXT_PUBLIC_GEOCODE_API_KEY
     }
-  },
-  useHead: {
-    script: [
-      {
-        type: 'application/ld+json',
-        children: JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'Article',
-          headline: 'Current Moon Phase',
-          description: 'Current phase of the moon and related astronomical data',
-          datePublished: new Date().toISOString(),
-          image: '/images/moon-phase-images/full-moon.png'
-        })
-      }
-    ]
   },
 })

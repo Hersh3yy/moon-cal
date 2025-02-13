@@ -41,6 +41,38 @@ useSeo({
   type: 'website'
 })
 
+// Add structured data for the moon information
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Dataset',
+        name: 'Moon Data and Celestial Events',
+        description: 'Real-time lunar data including moon phases, distances, signs, and upcoming celestial events',
+        keywords: ['moon phase', 'lunar cycle', 'moon distance', 'moon sign', 'sun sign', 'lunar eclipse', 'full moon'],
+        temporalCoverage: new Date().toISOString(),
+        spatialCoverage: {
+          '@type': 'Place',
+          name: 'Earth'
+        },
+        variableMeasured: [
+          'Moon Distance',
+          'Lunar Cycle',
+          'Moon Sign',
+          'Sun Sign',
+          'Moon Phase',
+          'Sun Times',
+          'Moon Times',
+          'Next Full Moon',
+          'Next Eclipse'
+        ]
+      })
+    }
+  ]
+})
+
 onMounted(async () => {
     try {
         await moonStore.fetchMoonData()
