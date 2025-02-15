@@ -26,6 +26,21 @@
 </template>
 
 <script setup lang="ts">
+interface Post {
+  id: string;
+  title: string;
+  excerpt?: string;
+  slug: string;
+  coverImage?: {
+    url: string;
+  };
+  createdAt: string;
+}
+
+interface PostsResponse {
+  posts: Post[];
+}
+
 const query = gql`
   query GetBlogPosts {
     posts {
@@ -41,6 +56,55 @@ const query = gql`
   }
 `
 
-const { data, pending: loading, error } = await useAsyncQuery(query)
+const { data, pending: loading, error } = await useAsyncQuery<PostsResponse>(query)
 const posts = computed(() => data.value?.posts || [])
+
+// Add SEO for blog index page
+useSeo({
+  title: 'Moon Blog | Lunatrack',
+  description: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.',
+  type: 'website',
+  keywords: [
+    'moon blog',
+    'lunar articles',
+    'moon phases',
+    'celestial events',
+    'astronomy blog',
+    'lunar phenomena',
+    'moon facts',
+    'astronomical articles'
+  ]
+})
+
+// Add blog listing structured data
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Blog',
+        name: 'Lunatrack Moon Blog',
+        description: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.',
+        url: 'https://lunatrack.info/blog',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Lunatrack',
+          logo: {
+            '@type': 'ImageObject',
+            url: 'https://lunatrack.info/logo.png'
+          }
+        },
+        blogPost: posts.value.map(post => ({
+          '@type': 'BlogPosting',
+          headline: post.title,
+          url: `https://lunatrack.info/blog/${post.slug}`,
+          image: post.coverImage?.url,
+          datePublished: post.createdAt,
+          description: post.excerpt
+        }))
+      })
+    }
+  ]
+})
 </script>

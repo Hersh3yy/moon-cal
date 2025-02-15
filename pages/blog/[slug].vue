@@ -41,7 +41,35 @@
 const route = useRoute()
 const slug = route.params.slug
 
-const query = /* GraphQL */ `
+interface Author {
+  name: string;
+  bio?: string;
+}
+
+interface SEO {
+  keywords?: string;
+  metaDescription?: string;
+}
+
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  slug: string;
+  coverImage?: {
+    url: string;
+  };
+  createdAt: string;
+  excerpt?: string;
+  author?: Author;
+  seo?: SEO;
+}
+
+interface PostResponse {
+  post: Post;
+}
+
+const { data, pending: loading, error } = await useAsyncQuery<PostResponse>(gql`
   query GetBlogPost($slug: String!) {
     post(where: { slug: $slug }) {
       id
@@ -52,13 +80,69 @@ const query = /* GraphQL */ `
         url
       }
       createdAt
+      excerpt
+      author {
+        name
+        bio
+      }
+      seo {
+        keywords
+        metaDescription
+      }
     }
   }
-`
-
-const { data, pending: loading, error } = await useAsyncQuery(query, {
-  slug: slug
-})
+`, { slug })
 
 const post = computed(() => data.value?.post)
+
+// Add SEO when post is available
+watch(post, (newPost) => {
+  if (newPost) {
+    // Basic SEO setup
+    useSeo({
+      title: `${newPost.title} | Lunatrack Blog`,
+      description: newPost.seo?.metaDescription || newPost.excerpt || `Read about ${newPost.title} on Lunatrack`,
+      type: 'article',
+      image: newPost.coverImage?.url,
+      keywords: newPost.seo?.keywords?.split(',') || ['moon', 'lunar', 'astronomy', 'celestial'],
+      author: newPost.author?.name || 'Lunatrack',
+      publishedTime: newPost.createdAt,
+    })
+
+    // Add article structured data
+    useHead({
+      script: [
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: newPost.title,
+            image: newPost.coverImage?.url,
+            datePublished: newPost.createdAt,
+            dateModified: newPost.createdAt,
+            author: {
+              '@type': 'Person',
+              name: newPost.author?.name || 'Lunatrack',
+              description: newPost.author?.bio
+            },
+            publisher: {
+              '@type': 'Organization',
+              name: 'Lunatrack',
+              logo: {
+                '@type': 'ImageObject',
+                url: 'https://lunatrack.info/logo.png'
+              }
+            },
+            description: newPost.excerpt || newPost.seo?.metaDescription,
+            mainEntityOfPage: {
+              '@type': 'WebPage',
+              '@id': `https://lunatrack.info/blog/${newPost.slug}`
+            }
+          })
+        }
+      ]
+    })
+  }
+}, { immediate: true })
 </script> 

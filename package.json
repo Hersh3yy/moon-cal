@@ -15,7 +15,7 @@
     "@nuxtjs/robots": "5.2.2",
     "@nuxtjs/seo": "^2.1.1",
     "@nuxtjs/sitemap": "7.2.4",
-    "@pinia/nuxt": "^0.10.0",
+    "@pinia/nuxt": "^0.10.1",
     "graphql": "^16.10.0",
     "graphql-request": "^7.1.2",
     "nuxt": "^3.14.1592",
