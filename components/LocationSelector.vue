@@ -10,15 +10,29 @@
                 </span>
             </div>
 
-            <!-- Edit Button -->
-            <button @click="startEditing"
-                class="h-9 w-9 bg-zinc-400/10 rounded-lg flex items-center justify-center hover:bg-zinc-400/20">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                    <path d="m15 5 4 4" />
-                </svg>
-            </button>
+            <!-- Location Actions -->
+            <div class="flex gap-2">
+                <!-- Get Current Location -->
+                <button @click="getCurrentLocation" 
+                    class="h-9 w-9 bg-zinc-400/10 rounded-lg flex items-center justify-center hover:bg-zinc-400/20"
+                    :disabled="!isGeolocationSupported || moonStore.loading">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" 
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
+
+                <!-- Edit Location -->
+                <button @click="startEditing"
+                    class="h-9 w-9 bg-zinc-400/10 rounded-lg flex items-center justify-center hover:bg-zinc-400/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                        <path d="m15 5 4 4" />
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <!-- Edit Mode -->
@@ -47,20 +61,29 @@
             <span class="text-white font-audiowide text-sm">
                 {{ formatCoordinates }}
             </span>
-            <!-- <div class="w-5 h-1 bg-transparent rounded-full border border-white"></div> -->
+        </div>
+
+        <!-- Error Message -->
+        <div v-if="error" class="mt-2 text-red-400 text-sm">
+            {{ error }}
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useMoonStore } from '@/stores/moon'
+import { useGeolocation } from '@/composables/useGeolocation'
 import locationIcon from '~/assets/icons/location-icon.png'
 
-// Store and state
+// Store and composables
 const moonStore = useMoonStore()
+const { isSupported: isGeolocationSupported, error: geolocationError, requestLocation } = useGeolocation()
+
+// State
 const isEditing = ref(false)
 const cityInput = ref('')
+const error = ref('')
 
 // Computed values
 const formatCoordinates = computed(() => {
@@ -77,16 +100,38 @@ const showChangeButton = computed(() => cityInput.value && !moonStore.loading)
 function startEditing() {
     cityInput.value = moonStore.cityName
     isEditing.value = true
+    error.value = ''
 }
 
 async function updateLocation() {
     if (cityInput.value && !moonStore.loading) {
         try {
+            error.value = ''
             await moonStore.updateLocation(cityInput.value)
             isEditing.value = false
-        } catch (error) {
-            console.error('Error updating location:', error)
+        } catch (err) {
+            error.value = err instanceof Error ? err.message : 'Error updating location'
         }
     }
 }
+
+async function getCurrentLocation() {
+    try {
+        error.value = ''
+        await requestLocation()
+    } catch (err) {
+        error.value = err instanceof Error ? err.message : 'Error getting current location'
+    }
+}
+
+// Request location on mount if not set
+onMounted(async () => {
+    if (isGeolocationSupported.value && !moonStore.cityName) {
+        try {
+            await requestLocation()
+        } catch (err) {
+            console.error('Failed to get initial location:', err)
+        }
+    }
+})
 </script>

@@ -10,10 +10,11 @@
 
                 <!-- Desktop Navigation -->
                 <nav v-if="menuItems" class="hidden md:flex items-center gap-3.5">
-                    <NuxtLink v-for="item in menuItems" :key="item.path" :to="item.path"
-                        class="text-white text-3xl font-helvetica hover:opacity-80 transition-opacity">
+                    <button v-for="item in menuItems" :key="item.path"
+                        @click="item.action ? item.action() : navigateTo(item.path)"
+                        class="text-white text-lg font-helvetica hover:opacity-80 transition-opacity">
                         {{ item.label }}
-                    </NuxtLink>
+                    </button>
                 </nav>
 
                 <!-- Mobile Menu Button -->
@@ -32,19 +33,27 @@
             <!-- Mobile Navigation -->
             <nav v-if="menuItems" :class="['md:hidden transition-all overflow-hidden',
                 isOpen ? 'max-h-96 pb-4' : 'max-h-0']">
-                <NuxtLink v-for="item in menuItems" :key="item.path" :to="item.path"
-                    class="block py-2 text-white text-xl font-helvetica hover:opacity-80" @click="isOpen = false">
+                <button v-for="item in menuItems" :key="item.path"
+                    @click="item.action ? item.action() : navigateTo(item.path)"
+                    class="block w-full py-2 text-white text-xl font-helvetica hover:opacity-80">
                     {{ item.label }}
-                </NuxtLink>
+                </button>
             </nav>
         </div>
+
+        <!-- About Modal -->
+        <ModalsAboutModal 
+            :is-open="isAboutModalOpen"
+            @close="isAboutModalOpen = false"
+        />
     </header>
 </template>
 
 <script setup>
 const isOpen = ref(false)
+const isAboutModalOpen = ref(false)
 
 const menuItems = [
-    // { label: 'Blog', path: '/blog' }
+    { label: 'About', path: '#', action: () => isAboutModalOpen.value = true }
 ]
 </script>
