@@ -12,9 +12,9 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
     "@nuxtjs/apollo": "5.0.0-alpha.14",
-    "@nuxtjs/robots": "5.2.2",
+    "@nuxtjs/robots": "5.2.3",
     "@nuxtjs/seo": "^2.1.1",
-    "@nuxtjs/sitemap": "7.2.4",
+    "@nuxtjs/sitemap": "7.2.5",
     "@pinia/nuxt": "^0.10.1",
     "graphql": "^16.10.0",
     "graphql-request": "^7.1.2",

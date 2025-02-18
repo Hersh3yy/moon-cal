@@ -7,7 +7,8 @@
     </div>
     
     <div v-else-if="error" class="text-red-500">
-      Error loading posts
+      <p>Error loading post: {{ error.message }}</p>
+      <pre>{{ error }}</pre>
     </div>
     
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -26,37 +27,27 @@
 </template>
 
 <script setup lang="ts">
-interface Post {
-  id: string;
-  title: string;
-  excerpt?: string;
-  slug: string;
-  coverImage?: {
-    url: string;
-  };
-  createdAt: string;
-}
-
-interface PostsResponse {
-  posts: Post[];
-}
+import { computed } from 'vue'
+import { gql } from 'graphql-tag'
 
 const query = gql`
-  query GetBlogPosts {
+  query {
     posts {
-      id
       title
-      excerpt
-      slug
+      tags
+      content {
+        json
+      }
       coverImage {
         url
       }
-      createdAt
+      referenceUrls
+      locale
     }
   }
 `
 
-const { data, pending: loading, error } = await useAsyncQuery<PostsResponse>(query)
+const { data, pending: loading, error } = await useAsyncQuery(query)
 const posts = computed(() => data.value?.posts || [])
 
 // Add SEO for blog index page

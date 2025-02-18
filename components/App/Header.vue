@@ -44,7 +44,7 @@
 <script setup>
 const isOpen = ref(false)
 
-// const menuItems = [
-//     { label: 'Blog', path: '/blog' }
-// ]
+const menuItems = [
+    // { label: 'Blog', path: '/blog' }
+]
 </script>

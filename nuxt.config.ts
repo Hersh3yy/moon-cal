@@ -45,10 +45,10 @@ export default defineNuxtConfig({
   apollo: {
     clients: {
       default: {
-        httpEndpoint: 'https://eu-central-1-shared-euc1-02.cdn.hygraph.com/content/clvkp3ut01ajw07wc38106mxt/master',
+        httpEndpoint: 'https://eu-central-1-shared-euc1-02.cdn.hygraph.com/content/cm60s84ew02la07v0ryt7qagq/master',
         httpLinkOptions: {
           headers: {
-            'Authorization': `Bearer bob}`
+            'Authorization': `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImdjbXMtbWFpbi1wcm9kdWN0aW9uIn0.eyJ2ZXJzaW9uIjozLCJpYXQiOjE3MzcxMTk4MTcsImF1ZCI6WyJodHRwczovL2FwaS1ldS13ZXN0LTIuaHlncmFwaC5jb20vdjIvY202MHM4NGV3MDJsYTA3djByeXQ3cWFncS9tYXN0ZXIiLCJtYW5hZ2VtZW50LW5leHQuZ3JhcGhjbXMuY29tIl0sImlzcyI6Imh0dHBzOi8vbWFuYWdlbWVudC1ldS13ZXN0LTIuaHlncmFwaC5jb20vIiwic3ViIjoiMDllYmVhYTUtMDcyYy00NjBlLWIyZjYtY2JhMTk0NDk1NzBkIiwianRpIjoiY2thNWoyZW9iMDN0YzAxd2gwZGZkNjdyeSJ9.bt4bFXFCo92wdRlQl5BSQY3-WXgW-KK1rfFuu2piNi7GBCdvZ036j5QIi4a3oYVugGWnfbOHYJxOmAszsdtSEFP9m9vSNrcqw5zFn8FNdIMeJgAWqXv6-Ix0X2Ms5UpgR9InCRvbHjwhzcg7ItbQRPLZB9wBiHMGcvI4QFEFybx3Dp9TFECdIbpUJ2xvhXWYdA9_G2I_BDeRFG5fvVLKJ2t4g_MxSvf9KcXzOluQjQsw0vNOdYiNqRr_e_vpl7L7u3w4YNOYtD5HmqEw8wyBot_ccwpAfhK6C3jdV1x09CTWtEeag9CB23VVdBoNJ52tErzo2vf-DcKTsSbxxr3jcvIo7CgHhOmXgKK0HRBp7uwsQWHm5SjL_AcFDJfcZaKWNoRHastRfCSAmgYv_l9aa4yDAj9hMOKMtWZ268MAOS5Eoo57_5BWO8YjWgvEalqfpkDnL3x3DhSi6ajDbLJbNtcX0eoM_qTg166EE_P2P7HGv0FxEemv67WgJ-YcfgJpiqv4ST3fZHaaYPnoqB5UQJfUvq1UvqdP1p053QtwDJ0NmQ9b0hh3bTRLbEXsjenA5KPr43-LWAW61-GhDuAS8lIRu2cjcG49O0vsaiCLBIGRzG5caTHJ2d4pCHQwiId9L7OXVt8ZPyqlhasOIQmc8qgqCViI9nUrQTMLGJ2dq4Q`
           }
         }
       }
