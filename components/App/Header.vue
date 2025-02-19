@@ -12,7 +12,8 @@
                 <nav v-if="menuItems" class="hidden md:flex items-center gap-3.5">
                     <button v-for="item in menuItems" :key="item.path"
                         @click="item.action ? item.action() : navigateTo(item.path)"
-                        class="text-white text-lg font-helvetica hover:opacity-80 transition-opacity">
+                        class="text-white text-lg font-helvetica hover:opacity-80 transition-opacity"
+                        :data-umami-event="item.label">
                         {{ item.label }}
                     </button>
                 </nav>
@@ -35,25 +36,41 @@
                 isOpen ? 'max-h-96 pb-4' : 'max-h-0']">
                 <button v-for="item in menuItems" :key="item.path"
                     @click="item.action ? item.action() : navigateTo(item.path)"
-                    class="block w-full py-2 text-white text-xl font-helvetica hover:opacity-80">
+                    class="block w-full py-2 text-white text-xl font-helvetica hover:opacity-80"
+                    :data-umami-event="item.label">
                     {{ item.label }}
                 </button>
             </nav>
         </div>
-    </header>
 
-    <!-- About Modal -->
-    <ModalsAboutModal 
-        :is-open="isAboutModalOpen"
-        @close="isAboutModalOpen = false"
-    />
+        <!-- About Modal -->
+        <ModalsAboutModal 
+            :is-open="isAboutModalOpen"
+            @close="isAboutModalOpen = false"
+        />
+    </header>
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue'
+
 const isOpen = ref(false)
 const isAboutModalOpen = ref(false)
 
+// Define menu items with actions
 const menuItems = [
-    { label: 'About', path: '#', action: () => isAboutModalOpen.value = true }
+    { label: 'About', path: '#about', action: () => isAboutModalOpen.value = true },
+    // { label: 'Features', path: '/features', action: () => navigateTo('/features') },
+    // { label: 'Contact', path: '/contact', action: () => navigateTo('/contact') },
+    // Add more menu items as needed
 ]
+
+// Check for the anchor in the URL on component mount
+onMounted(() => {
+    if (window.location.hash === '#about') {
+        isAboutModalOpen.value = true
+        // Optionally, you can scroll to the top of the page
+        window.scrollTo(0, 0)
+    }
+})
 </script>
