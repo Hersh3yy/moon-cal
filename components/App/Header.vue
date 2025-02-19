@@ -42,10 +42,8 @@
                 </button>
             </nav>
         </div>
-
-        <!-- About Modal -->
-        <ModalsAboutModal :is-open="isAboutModalOpen" @close="isAboutModalOpen = false" />
     </header>
+    <ModalsAboutModal :is-open="isAboutModalOpen" @close="isAboutModalOpen = false" />
 </template>
 
 <script setup>
