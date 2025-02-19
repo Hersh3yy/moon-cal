@@ -54,7 +54,7 @@
                         <div class="border-t border-gray-700 pt-4">
                             <h4 class="text-lg font-semibold text-white mb-2">Learn More</h4>
                             <p>
-                                Visit our blog when (under construction) to discover fascinating articles about lunar phenomena, astronomy, and the latest updates about Lunatrack.
+                                Visit our blog (under construction) to discover fascinating articles about lunar phenomena, astronomy, and the latest updates about Lunatrack.
                             </p>
                         </div>
                     </div>
