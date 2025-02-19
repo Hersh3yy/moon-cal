@@ -44,10 +44,7 @@
         </div>
 
         <!-- About Modal -->
-        <ModalsAboutModal 
-            :is-open="isAboutModalOpen"
-            @close="isAboutModalOpen = false"
-        />
+        <ModalsAboutModal :is-open="isAboutModalOpen" @close="isAboutModalOpen = false" />
     </header>
 </template>
 
