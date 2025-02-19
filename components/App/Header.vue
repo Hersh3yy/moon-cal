@@ -1,6 +1,6 @@
 <!-- components/AppHeader.vue -->
 <template>
-    <header class="fixed top-0 left-0 right-0 z-50 bg-neutral-900/80 backdrop-blur-sm">
+    <header class="fixed top-0 left-0 right-0 z-40 bg-neutral-900/80 backdrop-blur-sm">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex items-center justify-between h-14">
                 <!-- Logo -->
@@ -40,13 +40,13 @@
                 </button>
             </nav>
         </div>
-
-        <!-- About Modal -->
-        <ModalsAboutModal 
-            :is-open="isAboutModalOpen"
-            @close="isAboutModalOpen = false"
-        />
     </header>
+
+    <!-- About Modal -->
+    <ModalsAboutModal 
+        :is-open="isAboutModalOpen"
+        @close="isAboutModalOpen = false"
+    />
 </template>
 
 <script setup>

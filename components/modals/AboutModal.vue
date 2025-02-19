@@ -1,12 +1,12 @@
 <!-- components/modals/AboutModal.vue -->
 <template>
-    <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Background overlay -->
         <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity" @click="close"></div>
 
         <!-- Modal panel -->
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-lg bg-zinc-900 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+            <div class="relative transform overflow-hidden rounded-lg bg-zinc-900 bg-opacity-90 px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                 <!-- Close button -->
                 <button @click="close" class="absolute right-4 top-4 text-gray-400 hover:text-white">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -54,7 +54,7 @@
                         <div class="border-t border-gray-700 pt-4">
                             <h4 class="text-lg font-semibold text-white mb-2">Learn More</h4>
                             <p>
-                                Visit our blog to discover fascinating articles about lunar phenomena, astronomy, and the latest updates about Lunatrack.
+                                Visit our blog when (under construction) to discover fascinating articles about lunar phenomena, astronomy, and the latest updates about Lunatrack.
                             </p>
                         </div>
                     </div>

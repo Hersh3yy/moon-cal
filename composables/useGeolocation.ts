@@ -2,12 +2,14 @@ import { ref } from 'vue'
 import { useMoonStore } from '@/stores/moon'
 
 export const useGeolocation = () => {
-    const isSupported = ref(!!navigator.geolocation)
+    // Use import.meta.client to check if we're on the client side
+    const isSupported = ref(import.meta.client && 'geolocation' in navigator)
     const error = ref<string | null>(null)
     const moonStore = useMoonStore()
 
     const requestLocation = async () => {
-        if (!isSupported.value) {
+        // Double check we're on client side and geolocation is supported
+        if (!import.meta.client || !isSupported.value) {
             error.value = 'Geolocation is not supported by your browser'
             return
         }
@@ -22,7 +24,7 @@ export const useGeolocation = () => {
             })
 
             const { latitude, longitude } = position.coords
-            
+
             // Update the moon store with the new coordinates
             moonStore.coordinates = {
                 lat: latitude,
@@ -44,4 +46,4 @@ export const useGeolocation = () => {
         error,
         requestLocation
     }
-} 
+}
