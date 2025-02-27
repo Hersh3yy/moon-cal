@@ -110,6 +110,12 @@ async function updateLocation() {
         try {
             error.value = ''
             await moonStore.updateLocation(cityInput.value)
+
+            // Track the location update with Umami
+            if (window.umami) {
+                window.umami.track('location-updated', { city: cityInput.value });
+            }
+
             isEditing.value = false
         } catch (err) {
             error.value = err instanceof Error ? err.message : 'Error updating location'
