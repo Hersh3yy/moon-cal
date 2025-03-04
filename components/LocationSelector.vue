@@ -53,7 +53,8 @@
             <!-- Update Button -->
             <button v-if="showChangeButton" @click="updateLocation"
                 class="h-9 px-3 bg-zinc-400/10 rounded-lg text-white text-sm hover:bg-zinc-400/20 transition-colors"
-                :disabled="moonStore.loading">
+                :disabled="moonStore.loading"
+                :data-umami-event="`Location changing ${cityInput}`">
                 {{ moonStore.loading ? 'Updating...' : 'Change Location' }}
             </button>
         </div>
