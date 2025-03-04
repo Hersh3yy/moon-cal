@@ -6,7 +6,7 @@
       <p>Error loading posts: {{ error.message || 'An error occurred while fetching data' }}</p>
     </div>
 
-    <div v-else-if="loading" class="text-center py-8">
+    <div v-else-if="pending" class="text-center py-8">
       <p class="text-lg text-gray-600">Loading blog posts...</p>
     </div>
 
@@ -16,7 +16,7 @@
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="post in posts" :key="post.slug" class="bg-white rounded-lg shadow-md overflow-hidden">
-        <img v-if="post.coverImage && post.coverImage.url" :src="post.coverImage.url" :alt="post.title"
+        <img v-if="post.coverImage?.url" :src="post.coverImage.url" :alt="post.title"
           class="w-full h-48 object-cover">
         <div class="p-4">
           <h2 class="text-xl font-semibold mb-2">{{ post.title }}</h2>
@@ -31,9 +31,36 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { gql } from 'graphql-tag'
+import { usePostsStore } from '~/stores/posts'
 
+interface Post {
+  title: string
+  slug: string
+  date: string
+  excerpt?: string
+  content?: {
+    json: any
+  }
+  coverImage?: {
+    url: string
+  }
+  author?: {
+    name: string
+  }
+  referenceUrls?: string[]
+  locale?: string
+}
+
+interface QueryResponse {
+  posts: Post[]
+}
+
+// Initialize the posts store
+const postsStore = usePostsStore()
+
+// Define the query for fetching posts summary
 const query = gql`
   query GetPosts {
     posts {
@@ -41,7 +68,7 @@ const query = gql`
       slug
       date
       excerpt
-      tags
+      keywords
       content {
         json
       }
@@ -93,21 +120,28 @@ if (error && error.value) {
   console.error('Error fetching posts:', error.value)
 }
 
+// Watch for data changes and update store
+watch(data, (newData) => {
+  if (newData?.posts) {
+    postsStore.setPosts(newData.posts)
+  }
+}, { immediate: true })
+
 // Helper function to extract excerpt from content when excerpt is null
-function extractExcerpt(post) {
-  if (post.content && post.content.json && post.content.json.children) {
+function extractExcerpt(post: Post): string {
+  if (post.content?.json?.children) {
     // Try to find the first paragraph
-    const firstParagraph = post.content.json.children.find(child =>
+    const firstParagraph = post.content.json.children.find((child: any) =>
       child.type === 'paragraph' &&
       child.children &&
       child.children.length > 0 &&
-      child.children.some(c => c.text && c.text.trim().length > 0)
+      child.children.some((c: any) => c.text && c.text.trim().length > 0)
     )
 
     if (firstParagraph) {
       // Extract and combine all text from the paragraph
       const text = firstParagraph.children
-        .map(child => child.text || '')
+        .map((child: any) => child.text || '')
         .join('')
         .trim()
 
@@ -163,7 +197,11 @@ useHead({
           url: `https://lunatrack.info/blog/${post.slug}`,
           image: post.coverImage?.url,
           datePublished: post.date,
-          description: post.excerpt || extractExcerpt(post)
+          description: post.excerpt || extractExcerpt(post),
+          author: post.author?.name ? {
+            '@type': 'Person',
+            name: post.author.name
+          } : undefined
         }))
       })
     }

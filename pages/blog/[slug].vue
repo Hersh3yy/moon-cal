@@ -4,23 +4,23 @@
       <p class="text-lg text-gray-600">Loading post...</p>
     </div>
 
-    <div v-else-if="errorMessage" class="text-red-500 bg-red-50 p-4 rounded-lg mb-6">
-      <p>Error loading post: {{ errorMessage }}</p>
-      <pre class="mt-2 text-xs overflow-auto bg-gray-100 p-2 rounded">{{ debugInfo }}</pre>
+    <div v-else-if="error" class="text-red-500 bg-red-50 p-4 rounded-lg mb-6">
+      <p>Error loading post: {{ error.message || 'An error occurred while fetching data' }}</p>
+      <pre v-if="debugInfo" class="mt-2 text-xs overflow-auto bg-gray-100 p-2 rounded">{{ debugInfo }}</pre>
       <NuxtLink to="/blog" class="text-blue-500 hover:text-blue-600 mt-4 inline-block">
         ← Back to Blog
       </NuxtLink>
     </div>
 
     <article v-else-if="post" class="max-w-3xl mx-auto">
-      <img v-if="post.coverImage && post.coverImage.url" :src="post.coverImage.url" :alt="post.title"
+      <img v-if="post.coverImage?.url" :src="post.coverImage.url" :alt="post.title"
         class="w-full h-64 object-cover rounded-lg mb-8">
 
       <h1 class="text-4xl font-bold mb-4">{{ post.title }}</h1>
 
       <div class="text-gray-600 mb-8">
         {{ formatDate(post.date) }}
-        <span v-if="post.author && post.author.name" class="ml-2">
+        <span v-if="post.author?.name" class="ml-2">
           by {{ post.author.name }}
         </span>
       </div>
@@ -33,7 +33,7 @@
       </div>
 
       <!-- Reference URLs if available -->
-      <div v-if="post.referenceUrls && post.referenceUrls.length > 0" class="mt-8 p-4 bg-gray-50 rounded-lg">
+      <div v-if="post.referenceUrls?.length" class="mt-8 p-4 bg-gray-50 rounded-lg">
         <h3 class="text-lg font-semibold mb-2">References</h3>
         <ul class="list-disc pl-5">
           <li v-for="(url, index) in post.referenceUrls" :key="index" class="mb-1">
@@ -61,129 +61,120 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { gql } from 'graphql-tag'
+import { usePostsStore } from '~/stores/posts'
+
+// Initialize the posts store
+const postsStore = usePostsStore()
 
 // Define the route and slug
 const route = useRoute()
-const slug = computed(() => {
-  const slugParam = route.params.slug
-  return typeof slugParam === 'string' ? slugParam :
-    Array.isArray(slugParam) ? slugParam[0] : ''
-})
-
-// Debug info
-const debugInfo = ref('')
+const slug = computed(() => route.params.slug)
 
 // State variables
 const loading = ref(true)
-const errorMessage = ref('')
-const postData = ref(null)
+const error = ref<Error | null>(null)
+const debugInfo = ref('')
 const contentHtml = ref('')
+const fullPostData = ref<any>(null)
 
-// Make sure we have a valid slug before proceeding
-if (!slug.value) {
-  errorMessage.value = 'Invalid slug parameter'
-  loading.value = false
-} else {
-  // Log the slug we're using
-  console.log('Fetching post with slug:', slug.value)
-
-  // Define the query
-  const query = gql`
-    query GetBlogPost($slug: String!) {
-      post(where: { slug: $slug }) {
-        title
-        slug
-        date
-        excerpt
-        content {
-          json
-        }
-        coverImage {
-          url
-        }
-        author {
-          name
-        }
-        referenceUrls
-        locale
-      }
+// Define the GraphQL response type
+interface PostResponse {
+  post: {
+    title: string
+    slug: string
+    date: string
+    excerpt?: string
+    content?: {
+      json: any
     }
-  `
+    coverImage?: {
+      url: string
+    }
+    author?: {
+      name: string
+    }
+    referenceUrls?: string[]
+    locale?: string
+  }
+}
+
+// Check if we already have this post's basic info
+const existingPostInfo = computed(() =>
+  postsStore.getPost(slug.value)
+)
+
+// Create a function to load the full post
+const loadFullPost = async () => {
+  loading.value = true
+  error.value = null
+  debugInfo.value = ''
+  contentHtml.value = ''
 
   try {
-    // Execute the query
-    const { data, error } = await useAsyncQuery(query, {
-      slug: slug.value
-    })
+    // Check if we have the full post data in the store
+    const storePost = postsStore.getPost(slug.value)
+    if (storePost?.content?.json) {
+      fullPostData.value = storePost
+      contentHtml.value = renderContentJson(storePost.content.json)
+      return
+    }
 
-    // Log debug information
-    console.log('Query variables:', { slug: slug.value })
-    console.log('GraphQL Response:', { data, error })
-
-    if (error.value) {
-      // Handle error
-      console.error('GraphQL Error:', error.value)
-      const errorObj = error.value
-
-      // Create a readable error message
-      if (typeof errorObj === 'object' && errorObj !== null) {
-        errorMessage.value = errorObj.message || 'Error fetching post'
-        // Store debug info
-        debugInfo.value = `Status: ${errorObj.statusCode || 'unknown'}\n`
-
-        if (errorObj.networkError) {
-          debugInfo.value += `Network: ${errorObj.networkError}\n`
-        }
-
-        if (errorObj.graphQLErrors && errorObj.graphQLErrors.length) {
-          debugInfo.value += `GraphQL Errors: ${JSON.stringify(errorObj.graphQLErrors)}\n`
-        }
-      } else {
-        errorMessage.value = 'Unknown error occurred'
-      }
-    } else if (data.value) {
-      // Handle successful response
-      if (data.value.post) {
-        postData.value = data.value.post
-
-        // Process the content if available
-        if (postData.value.content && postData.value.content.json) {
-          contentHtml.value = renderContentJson(postData.value.content.json)
-        }
-      } else if (typeof data.value === 'object' && data.value !== null && '_value' in data.value) {
-        // Handle RefImpl structure
-        const rawValue = data.value._value || data.value._rawValue
-        if (rawValue && rawValue.post) {
-          postData.value = rawValue.post
-
-          // Process the content if available
-          if (postData.value.content && postData.value.content.json) {
-            contentHtml.value = renderContentJson(postData.value.content.json)
+    // Fetch from GraphQL if not in store
+    const query = gql`
+      query GetBlogPost($slug: String!) {
+        post(where: { slug: $slug }) {
+          title
+          slug
+          date
+          excerpt
+          content {
+            json
           }
-        } else {
-          errorMessage.value = 'Post not found'
+          coverImage {
+            url
+          }
+          author {
+            name
+          }
+          referenceUrls
+          locale
         }
-      } else {
-        errorMessage.value = 'Post not found'
       }
+    `
+
+    const { data, error: queryError } = await useAsyncQuery(query, { slug: slug.value })
+
+    if (queryError.value) {
+      throw queryError.value
+    }
+
+    if (data.value?.post) {
+      fullPostData.value = data.value.post
+      if (fullPostData.value.content?.json) {
+        contentHtml.value = renderContentJson(fullPostData.value.content.json)
+      }
+      postsStore.updatePost(fullPostData.value)
     } else {
-      errorMessage.value = 'Post not found'
+      throw new Error('Post not found')
     }
   } catch (e) {
-    // Handle any unexpected errors
-    console.error('Error executing query:', e)
-    errorMessage.value = e instanceof Error ? e.message : 'An unexpected error occurred'
-    debugInfo.value = e instanceof Error ? e.stack || '' : String(e)
+    error.value = e as Error
+    console.error('Error loading post:', e)
+    if (e instanceof Error) {
+      debugInfo.value = e.stack || e.message
+    } else {
+      debugInfo.value = String(e)
+    }
   } finally {
     loading.value = false
   }
 }
 
 // Helper function to format date
-function formatDate(dateString) {
+function formatDate(dateString: string): string {
   if (!dateString) return ''
   try {
     const date = new Date(dateString)
@@ -198,14 +189,14 @@ function formatDate(dateString) {
 }
 
 // Helper function to render the content JSON
-function renderContentJson(contentJson) {
+function renderContentJson(contentJson: any): string {
   try {
-    if (!contentJson || !contentJson.children) {
+    if (!contentJson?.children) {
       return '<p>No content available</p>'
     }
 
     // Function to process a single block
-    function processBlock(block) {
+    function processBlock(block: any): string {
       if (!block) return ''
 
       switch (block.type) {
@@ -243,7 +234,7 @@ function renderContentJson(contentJson) {
     }
 
     // Process children recursively
-    function processChildren(children) {
+    function processChildren(children: any[]): string {
       if (!children) return ''
       return children.map(child => {
         if (child.type) {
@@ -268,20 +259,66 @@ function renderContentJson(contentJson) {
   }
 }
 
-// Define post as a computed property
-const post = computed(() => postData.value || null)
+// Create a computed property that combines store data with fetched data
+const post = computed(() => {
+  if (fullPostData.value) return fullPostData.value
+  if (existingPostInfo.value) return existingPostInfo.value
+  return null
+})
+
+// Watch for route changes to load the post
+watch(() => route.params.slug, (newSlug) => {
+  if (newSlug) {
+    loadFullPost()
+  }
+})
+
+// Initial load
+onMounted(() => {
+  loadFullPost()
+})
 
 // Add SEO when post is available
-if (post.value) {
-  useSeo({
-    title: post.value.title ? `${post.value.title} | Lunatrack Blog` : 'Lunatrack Blog',
-    description: post.value.excerpt || `Read about ${post.value.title} on Lunatrack`,
-    type: 'article',
-    image: post.value.coverImage?.url,
-    author: post.value.author?.name || 'Lunatrack',
-    publishedTime: post.value.date,
-  })
-}
+watch(post, (newPost) => {
+  if (newPost) {
+    useSeo({
+      title: newPost.title ? `${newPost.title} | Lunatrack Blog` : 'Lunatrack Blog',
+      description: newPost.excerpt || `Read about ${newPost.title} on Lunatrack`,
+      type: 'article',
+      image: newPost.coverImage?.url,
+      author: newPost.author?.name || 'Lunatrack',
+      publishedTime: newPost.date,
+    })
+
+    // Add structured data for better SEO
+    useHead({
+      script: [
+        {
+          type: 'application/ld+json',
+          children: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: newPost.title,
+            image: newPost.coverImage?.url,
+            datePublished: newPost.date,
+            author: {
+              '@type': 'Person',
+              name: newPost.author?.name || 'Lunatrack'
+            },
+            publisher: {
+              '@type': 'Organization',
+              name: 'Lunatrack',
+              logo: {
+                '@type': 'ImageObject',
+                url: 'https://lunatrack.info/logo.png'
+              }
+            }
+          })
+        }
+      ]
+    })
+  }
+}, { immediate: true })
 </script>
 
 <style>
