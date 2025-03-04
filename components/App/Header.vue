@@ -55,7 +55,7 @@ const isAboutModalOpen = ref(false)
 // Define menu items with actions
 const menuItems = [
     { label: 'About', path: '#about', action: () => isAboutModalOpen.value = true },
-    // { label: 'Features', path: '/features', action: () => navigateTo('/features') },
+    { label: 'Blog', path: '/blog', action: () => navigateTo('/blog') },
     // { label: 'Contact', path: '/contact', action: () => navigateTo('/contact') },
     // Add more menu items as needed
 ]

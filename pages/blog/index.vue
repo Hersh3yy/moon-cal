@@ -2,8 +2,8 @@
   <div class="container mx-auto px-4 py-8">
     <h1 class="text-4xl font-bold mb-8">Moon Blog</h1>
 
-    <div v-if="errorMessage" class="text-red-500 mb-6 p-4 bg-red-50 rounded-lg">
-      <p>Error loading posts: {{ errorMessage }}</p>
+    <div v-if="error" class="text-red-500 mb-6 p-4 bg-red-50 rounded-lg">
+      <p>Error loading posts: {{ error.message || 'An error occurred while fetching data' }}</p>
     </div>
 
     <div v-else-if="loading" class="text-center py-8">
@@ -31,15 +31,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { gql } from 'graphql-tag'
 
-const loading = ref(true)
-const errorMessage = ref('')
-const postsData = ref([])
-
 const query = gql`
-  query {
+  query GetPosts {
     posts {
       title
       slug
@@ -65,43 +61,37 @@ const query = gql`
   }
 `
 
-try {
-  const { data, error } = await useAsyncQuery(query)
+// Data fetching with Apollo
+const { data, loading, error } = await useAsyncQuery(query)
 
-  // Log the response for debugging
-  console.log('GraphQL Response:', { data, error })
+// Debugging: Log the response data
+console.log('Fetched posts data:', data.value)
 
-  // Check for errors
-  if (error) {
-    console.error('GraphQL Error:', error.value)
-    errorMessage.value = typeof error.value === 'object' && error.value !== null
-      ? (error.value.message || 'An error occurred while fetching data')
-      : 'An error occurred while fetching data'
-  }
-  // Handle data safely
-  else if (data.value) {
-    // Safely access posts from various possible response structures
-    if (data.value.posts) {
-      postsData.value = data.value.posts
-    } else if (typeof data.value === 'object' && data.value !== null && '_value' in data.value) {
-      // Handle RefImpl structure
-      const rawValue = data.value._value || data.value._rawValue
-      if (rawValue && rawValue.posts) {
-        postsData.value = rawValue.posts
-      }
-    }
-  }
-} catch (e) {
-  console.error('Error in GraphQL query execution:', e)
-  errorMessage.value = 'Failed to load blog posts. Please try again later.'
-} finally {
-  loading.value = false
-}
-
-// Define posts as a computed property
+// Safely access posts data
 const posts = computed(() => {
-  return postsData.value || []
+  if (loading && loading.value) {
+    console.log('Loading posts...')
+    return [] // Return an empty array while loading
+  }
+  
+  if (error && error.value) {
+    console.error('Error fetching posts:', error.value)
+    return [] // Return an empty array if there's an error
+  }
+
+  // Ensure data and posts are defined before accessing
+  if (data.value && data.value.posts && Array.isArray(data.value.posts)) {
+    return data.value.posts
+  } else {
+    console.warn('Posts data is not an array or is undefined:', data.value)
+    return []
+  }
 })
+
+// Debugging: Log any errors
+if (error && error.value) {
+  console.error('Error fetching posts:', error.value)
+}
 
 // Helper function to extract excerpt from content when excerpt is null
 function extractExcerpt(post) {
