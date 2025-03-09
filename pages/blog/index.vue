@@ -19,7 +19,7 @@
         <img v-if="post.coverImage?.url" :src="post.coverImage.url" :alt="post.title"
           class="w-full h-48 object-cover">
         <div class="p-4">
-          <h2 class="text-xl font-semibold mb-2">{{ post.title }}</h2>
+          <h2 class="text-xl font-semibold mb-2 text-gray-800">{{ post.title }}</h2>
           <p class="text-gray-600 mb-4">{{ post.excerpt || extractExcerpt(post) }}</p>
           <NuxtLink :to="'/blog/' + post.slug" class="text-blue-500 hover:text-blue-600">
             Read more →

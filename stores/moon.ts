@@ -140,6 +140,7 @@ export const useMoonStore = defineStore("moon", {
 
       try {
         const config = useRuntimeConfig();
+        
         const response = await fetch(
           `https://moon-phase.p.rapidapi.com/advanced?lat=${this.coordinates.lat}&lon=${this.coordinates.lon}`,
           {
@@ -154,17 +155,30 @@ export const useMoonStore = defineStore("moon", {
           throw new Error(`API Error: ${response.status}`);
         }
 
-        const data = await response.json();
+        const rawText = await response.text();
+        const lastJsonBraceIndex = rawText.lastIndexOf('}}');
+        
+        if (lastJsonBraceIndex === -1) {
+          throw new Error('Could not find valid JSON structure in response');
+        }
 
-        // Validate required data structure
+        const cleanedJson = rawText.substring(0, lastJsonBraceIndex + 2);
+        let data;
+        
+        try {
+          data = JSON.parse(cleanedJson);
+        } catch (parseError: unknown) {
+          throw new Error(`Failed to parse API response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+        }
+
         if (!data?.moon_phases?.full_moon?.next) {
           throw new Error('Invalid data structure received from API');
         }
 
         this.moonData = data;
       } catch (error) {
-        this.error = error instanceof Error ? error.message : 'Unknown error';
-        throw error; // Re-throw for component handling
+        this.error = error instanceof Error ? error.message : 'Unknown error occurred';
+        throw error;
       } finally {
         this.loading = false;
       }

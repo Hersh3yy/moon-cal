@@ -237,14 +237,17 @@ function renderContentJson(contentJson: any): string {
     function processChildren(children: any[]): string {
       if (!children) return ''
       return children.map(child => {
-        if (child.type) {
+        if (child.type === 'link') {
+          // Handle link type specifically
+          const linkContent = processChildren(child.children)
+          return `<a href="${child.href}" ${child.openInNewTab ? 'target="_blank" rel="noopener noreferrer"' : ''} class="text-blue-500 hover:text-blue-600">${linkContent}</a>`
+        } else if (child.type) {
           return processBlock(child)
         } else if (child.text !== undefined) {
           let text = child.text
           if (child.bold) text = `<strong>${text}</strong>`
           if (child.italic) text = `<em>${text}</em>`
           if (child.underline) text = `<u>${text}</u>`
-          if (child.href) text = `<a href="${child.href}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">${text}</a>`
           return text
         }
         return ''
