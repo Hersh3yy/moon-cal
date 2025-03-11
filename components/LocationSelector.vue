@@ -42,7 +42,7 @@
             <div class="relative flex-1">
                 <input type="text" v-model="cityInput"
                     class="w-full h-9 bg-zinc-400/10 rounded-lg px-3 text-base font-extralight font-helvetica text-white focus:outline-none focus:ring-1 focus:ring-white/20"
-                    placeholder=" " @keyup.enter="updateLocation" />
+                    placeholder=" " @keyup.enter="updateLocation" :data-umami-event="`Location changed? ${cityInput}`" />
                 <span
                     class="absolute left-3 top-2 text-white/60 text-sm transition-all duration-200 pointer-events-none"
                     :class="[cityInput ? 'transform -translate-y-4 text-xs' : '']">
@@ -54,7 +54,7 @@
             <button v-if="showChangeButton" @click="updateLocation"
                 class="h-9 px-3 bg-zinc-400/10 rounded-lg text-white text-sm hover:bg-zinc-400/20 transition-colors"
                 :disabled="moonStore.loading"
-                :data-umami-event="`Location changing ${cityInput}`">
+                :data-umami-event="`Location changing from ${cityInput}`">
                 {{ moonStore.loading ? 'Updating...' : 'Change Location' }}
             </button>
         </div>
