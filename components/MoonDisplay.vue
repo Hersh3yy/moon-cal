@@ -1,5 +1,3 @@
-# components/MoonDisplay.vue
-
 <template>
     <div class="flex flex-col items-center justify-center space-y-6">
         <div v-if="moonData" class="relative">
@@ -32,10 +30,12 @@
                     {{ moonData.moon.illumination }} illuminated
                 </p>
 
-                <!-- Additional moon information -->
-                <div class="mt-4 text-sm text-gray-400">
-                    <p>{{ cycleInfo.sidereal.effect }}</p>
-                    <p class="mt-1">{{ cycleInfo.tropical.effect }}</p>
+                <!-- Additional moon information - Viewing conditions -->
+                <div v-if="viewingInfo" class="mt-4 text-sm text-gray-400">
+                    <p>{{ viewingInfo }}</p>
+                    <p v-if="optimalViewingPeriod" class="mt-1">
+                        Best viewing: {{ optimalViewingPeriod.start_time }} - {{ optimalViewingPeriod.end_time }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -45,8 +45,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+
 const moonStore = useMoonStore()
-const { getMoonPhaseMask, getMoonCycleInfo } = useMoonImage()
+const { getMoonPhaseMask } = useMoonImage()
 
 const moonData = computed(() => moonStore.moonData)
 
@@ -66,13 +68,20 @@ const moonRotation = computed(() => {
     return moonData.value.moon.detailed.position.parallactic_angle
 })
 
-// Get additional cycle information
-const cycleInfo = computed(() => {
-    if (!moonData.value) return {
-        sidereal: { effect: '' },
-        tropical: { effect: '' }
+// Get viewing conditions information
+const viewingInfo = computed(() => {
+    if (!moonData.value?.moon?.detailed?.visibility?.viewing_conditions?.phase_quality) {
+        return null
     }
-    return getMoonCycleInfo(moonData.value)
+    return moonData.value.moon.detailed.visibility.viewing_conditions.phase_quality
+})
+
+// Get optimal viewing period
+const optimalViewingPeriod = computed(() => {
+    if (!moonData.value?.moon?.events?.optimal_viewing_period) {
+        return null
+    }
+    return moonData.value.moon.events.optimal_viewing_period
 })
 </script>
 
