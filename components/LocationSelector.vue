@@ -6,7 +6,7 @@
             <div class="flex items-center gap-2 w-fit h-9 bg-zinc-400/10 rounded-lg px-3">
                 <img :src="locationIcon" alt="Location" class="w-3 h-5" />
                 <span class="text-white text-base font-extralight font-['Helvetica Neue']">
-                    {{ moonStore.cityName || cityInput }}
+                    {{ moonStore.cityName || cityInput || 'Getting your location...' }}
                 </span>
             </div>
 
@@ -140,6 +140,7 @@ onMounted(async () => {
             await requestLocation()
         } catch (err) {
             console.error('Failed to get initial location:', err)
+            // Don't show error to user on initial load
         }
     }
 })

@@ -15,12 +15,25 @@ export const useGeolocation = () => {
         }
 
         try {
+            // First check if we have permission
+            const permissionStatus = await navigator.permissions.query({ name: 'geolocation' as PermissionName })
+            
+            // If permission is denied, we need to explicitly request it
+            if (permissionStatus.state === 'denied') {
+                error.value = 'Please enable location access in your browser settings'
+                return
+            }
+
             const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, {
-                    enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 0
-                })
+                navigator.geolocation.getCurrentPosition(
+                    resolve,
+                    reject,
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000, // Increased timeout to 10 seconds
+                        maximumAge: 0
+                    }
+                )
             })
 
             const { latitude, longitude } = position.coords
@@ -36,7 +49,19 @@ export const useGeolocation = () => {
 
             return { latitude, longitude }
         } catch (err) {
-            error.value = err instanceof Error ? err.message : 'Failed to get location'
+            if (err instanceof Error) {
+                if (err.name === 'NotAllowedError') {
+                    error.value = 'Location access was denied. Please enable it in your browser settings.'
+                } else if (err.name === 'TimeoutError') {
+                    error.value = 'Location request timed out. Please try again.'
+                } else if (err.name === 'PositionUnavailableError') {
+                    error.value = 'Location information is unavailable. Please try again.'
+                } else {
+                    error.value = err.message
+                }
+            } else {
+                error.value = 'Failed to get location'
+            }
             throw error.value
         }
     }
