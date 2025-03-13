@@ -55,9 +55,11 @@ interface MoonData {
         sunset_timestamp: string;
         solar_noon: string;
         day_length: string;
-        sun_altitude: number;
-        sun_distance: number;
-        sun_azimuth: number;
+        position: {
+            altitude: number;
+            azimuth: number;
+            distance: number;
+        };
         next_solar_eclipse?: {
             timestamp: number;
             datestamp: string;
@@ -82,10 +84,6 @@ interface MoonData {
         moonrise_timestamp: number;
         moonset: string;
         moonset_timestamp: number;
-        moon_altitude: number;
-        moon_distance: number;
-        moon_azimuth: number;
-        moon_parallactic_angle: number;
         next_lunar_eclipse: {
             timestamp: number;
             datestamp: string;
@@ -96,9 +94,9 @@ interface MoonData {
             position: {
                 altitude: number;
                 azimuth: number;
-                phase_angle: number;
-                illumination: number;
                 distance: number;
+                parallactic_angle: number;
+                phase_angle: number;
             };
             visibility: {
                 visible_hours: number;
@@ -113,6 +111,40 @@ interface MoonData {
                         best_magnification: string;
                     };
                 };
+            };
+            upcoming_phases: {
+                new_moon: {
+                    last: MoonPhase;
+                    next: MoonPhase;
+                };
+                first_quarter: {
+                    last: MoonPhase;
+                    next: MoonPhase;
+                };
+                full_moon: {
+                    last: MoonPhase;
+                    next: MoonPhase;
+                };
+                last_quarter: {
+                    last: MoonPhase;
+                    next: MoonPhase;
+                };
+            };
+            illumination_details: {
+                percentage: number;
+                visible_fraction: number;
+                phase_angle: number;
+            };
+        };
+        events: {
+            moonrise_visible: boolean;
+            moonset_visible: boolean;
+            optimal_viewing_period: {
+                start_time: string;
+                end_time: string;
+                duration_hours: number;
+                viewing_quality: string;
+                recommendations: string[];
             };
         };
     };

@@ -2,21 +2,15 @@
 <template>
     <UiBaseCard :title="props.title" :mode="props.mode" :colSpan="props.colSpan">
         <div class="flex items-center gap-4">
-            <img :src="getZodiacImage(moonData?.moon?.zodiac?.sun_sign?.name)"
-                :alt="moonData?.moon?.zodiac?.sun_sign?.name" class="w-12 h-12 object-contain" />
+            <img :src="getZodiacImage(moonData?.moon?.zodiac?.sun_sign)"
+                :alt="moonData?.moon?.zodiac?.sun_sign" class="w-12 h-12 object-contain" />
             <div class="flex flex-col flex-1">
                 <div class="flex items-center justify-between">
                     <span class="moon-text-primary">
-                        {{ moonData?.moon?.zodiac?.sun_sign?.name }}
-                        <span class="ml-1 text-sm opacity-75">{{ moonData?.moon?.zodiac?.sun_sign?.symbol }}</span>
+                        {{ moonData?.moon?.zodiac?.sun_sign }}
                     </span>
                 </div>
-                <p class="text-sm opacity-75 mt-1">{{ getZodiacDescription(moonData?.moon?.zodiac?.sun_sign?.name) }}
-                </p>
-                <p class="text-xs opacity-50 mt-1">
-                    {{ moonData?.moon?.zodiac?.sun_sign?.start?.month }}/{{ moonData?.moon?.zodiac?.sun_sign?.start?.day
-                    }} -
-                    {{ moonData?.moon?.zodiac?.sun_sign?.end?.month }}/{{ moonData?.moon?.zodiac?.sun_sign?.end?.day }}
+                <p class="text-sm opacity-75 mt-1">{{ getZodiacDescription(moonData?.moon?.zodiac?.sun_sign) }}
                 </p>
             </div>
         </div>

@@ -17,7 +17,7 @@ import type { BaseWidgetProps } from '@/types/widget'
 
 const props = withDefaults(defineProps<BaseWidgetProps>(), {
     mode: 'science',
-    colSpan: 2
+    colSpan: 1
 })
 
 const { moonData } = storeToRefs(useMoonStore())
