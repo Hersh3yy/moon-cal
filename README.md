@@ -7,3 +7,4 @@
 [ ] accuarate moon images for each day
 [ ] 3d render of moon
 [ ] favico and title
+[x] add share button on blogs

@@ -45,9 +45,23 @@
       </div>
 
       <div class="mt-8">
-        <NuxtLink to="/blog" class="text-blue-500 hover:text-blue-600">
-          ← Back to Blog
-        </NuxtLink>
+        <div class="flex items-center justify-between">
+          <NuxtLink to="/blog" class="text-blue-500 hover:text-blue-600">
+            ← Back to Blog
+          </NuxtLink>
+          
+          <button 
+            @click="sharePost" 
+            class="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+              <polyline points="16 6 12 2 8 6"></polyline>
+              <line x1="12" y1="2" x2="12" y2="15"></line>
+            </svg>
+            Share
+          </button>
+        </div>
       </div>
     </article>
 
@@ -322,6 +336,41 @@ watch(post, (newPost) => {
     })
   }
 }, { immediate: true })
+
+// Share functionality
+const sharePost = () => {
+  const currentUrl = window.location.href;
+  const shareUrl = currentUrl.includes('?') 
+    ? `${currentUrl}&ref=share` 
+    : `${currentUrl}?ref=share`;
+  
+  if (navigator.share) {
+    // Use Web Share API if available
+    navigator.share({
+      title: post.value?.title || 'Moon Calendar Blog Post',
+      text: post.value?.excerpt || 'Check out this blog post!',
+      url: shareUrl
+    }).catch(error => {
+      console.error('Error sharing:', error);
+      fallbackShare(shareUrl);
+    });
+  } else {
+    // Fallback for browsers that don't support Web Share API
+    fallbackShare(shareUrl);
+  }
+};
+
+const fallbackShare = (url) => {
+  // Copy to clipboard
+  navigator.clipboard.writeText(url).then(() => {
+    // Show a toast or notification
+    alert('Link copied to clipboard!');
+  }).catch(err => {
+    console.error('Failed to copy: ', err);
+    // Provide manual selection as last resort
+    prompt('Copy this link to share:', url);
+  });
+};
 </script>
 
 <style>

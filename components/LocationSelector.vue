@@ -15,7 +15,8 @@
                 <!-- Get Current Location -->
                 <button @click="getCurrentLocation" 
                     class="h-9 w-9 bg-zinc-400/10 rounded-lg flex items-center justify-center hover:bg-zinc-400/20"
-                    :disabled="!isGeolocationSupported || moonStore.loading">
+                    :disabled="locationLoading || moonStore.loading"
+                    :class="{'animate-pulse': locationLoading}">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" 
                         stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"></circle>
@@ -57,6 +58,16 @@
                 :data-umami-event="`Location changing from ${cityInput}`">
                 {{ moonStore.loading ? 'Updating...' : 'Change Location' }}
             </button>
+            
+            <!-- Cancel Button -->
+            <button @click="cancelEditing"
+                class="h-9 w-9 bg-zinc-400/10 rounded-lg flex items-center justify-center hover:bg-zinc-400/20">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
         </div>
 
         <!-- Coordinates Display -->
@@ -74,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useMoonStore } from '@/stores/moon'
 import { useGeolocation } from '@/composables/useGeolocation'
 import locationIcon from '~/assets/icons/location-icon.png'
@@ -87,6 +98,7 @@ const { isSupported: isGeolocationSupported, error: geolocationError, requestLoc
 const isEditing = ref(false)
 const cityInput = ref('')
 const error = ref('')
+const locationLoading = ref(false)
 
 // Computed values
 const formatCoordinates = computed(() => {
@@ -99,10 +111,22 @@ const formatCoordinates = computed(() => {
 
 const showChangeButton = computed(() => cityInput.value && !moonStore.loading)
 
+// Watch for geolocation errors
+watch(geolocationError, (newError) => {
+    if (newError) {
+        error.value = newError
+    }
+})
+
 // Methods
 function startEditing() {
     cityInput.value = moonStore.cityName
     isEditing.value = true
+    error.value = ''
+}
+
+function cancelEditing() {
+    isEditing.value = false
     error.value = ''
 }
 
@@ -125,11 +149,28 @@ async function updateLocation() {
 }
 
 async function getCurrentLocation() {
+    if (!isGeolocationSupported.value) {
+        error.value = 'Geolocation is not supported by your browser'
+        return
+    }
+    
     try {
         error.value = ''
-        await requestLocation()
+        locationLoading.value = true
+        
+        // Show a browser prompt to explain why we need location
+        if (import.meta.client) {
+            const promptMessage = 'We need your location to show accurate moon data for your area.'
+            if (window.confirm(promptMessage)) {
+                await requestLocation()
+            } else {
+                error.value = 'Location access was denied'
+            }
+        }
     } catch (err) {
         error.value = err instanceof Error ? err.message : 'Error getting current location'
+    } finally {
+        locationLoading.value = false
     }
 }
 
@@ -137,7 +178,11 @@ async function getCurrentLocation() {
 onMounted(async () => {
     if(import.meta.client && isGeolocationSupported.value && !moonStore.cityName) {
         try {
-            await requestLocation()
+            // Don't automatically request on first load - let user initiate
+            // Instead, set a default city
+            if (!moonStore.cityName) {
+                moonStore.cityName = 'Amsterdam' // Default city
+            }
         } catch (err) {
             console.error('Failed to get initial location:', err)
             // Don't show error to user on initial load

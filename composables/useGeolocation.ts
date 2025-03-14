@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { useMoonStore } from '@/stores/moon'
+import { useRuntimeConfig } from '#app'
 
 export const useGeolocation = () => {
     // Use import.meta.client to check if we're on the client side
@@ -11,17 +12,23 @@ export const useGeolocation = () => {
         // Double check we're on client side and geolocation is supported
         if (!import.meta.client || !isSupported.value) {
             error.value = 'Geolocation is not supported by your browser'
-            return
+            throw new Error(error.value)
         }
 
         try {
             // First check if we have permission
-            const permissionStatus = await navigator.permissions.query({ name: 'geolocation' as PermissionName })
-            
-            // If permission is denied, we need to explicitly request it
-            if (permissionStatus.state === 'denied') {
-                error.value = 'Please enable location access in your browser settings'
-                return
+            let permissionStatus
+            try {
+                permissionStatus = await navigator.permissions.query({ name: 'geolocation' as PermissionName })
+                
+                // If permission is denied, we need to explicitly request it
+                if (permissionStatus.state === 'denied') {
+                    error.value = 'Please enable location access in your browser settings'
+                    throw new Error(error.value)
+                }
+            } catch (permErr) {
+                // Some browsers might not support permissions API
+                console.warn('Permission API not supported, proceeding with direct geolocation request')
             }
 
             const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -47,6 +54,22 @@ export const useGeolocation = () => {
             // Fetch new moon data with updated coordinates
             await moonStore.fetchMoonData()
 
+            // Try to get city name from reverse geocoding
+            try {
+                const response = await fetch(`https://geocode.maps.co/reverse?lat=${latitude}&lon=${longitude}&api_key=${useRuntimeConfig().public.geocodeApiKey}`)
+                if (response.ok) {
+                    const data = await response.json()
+                    if (data.display_name) {
+                        // Extract city name from display_name
+                        const parts = data.display_name.split(',').map((part: string) => part.trim())
+                        moonStore.cityName = parts[0] || 'Current Location'
+                    }
+                }
+            } catch (geoErr) {
+                console.error('Error getting location name:', geoErr)
+                moonStore.cityName = 'Current Location'
+            }
+
             return { latitude, longitude }
         } catch (err) {
             if (err instanceof Error) {
@@ -62,7 +85,7 @@ export const useGeolocation = () => {
             } else {
                 error.value = 'Failed to get location'
             }
-            throw error.value
+            throw new Error(error.value)
         }
     }
 
