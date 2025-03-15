@@ -1,28 +1,16 @@
 <template>
     <div class="flex flex-col items-center justify-center space-y-6">
-        <div v-if="moonData" class="relative">
-            <!-- Moon image container with mask -->
+        <div v-if="moonData" class="relative flex flex-col items-center w-full">
+            <!-- Moon image container -->
             <div class="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 relative rounded-full overflow-hidden
                   shadow-[0_0_50px_rgba(255,255,255,0.2)]
-                  transition-transform duration-700 ease-in-out transform hover:scale-105">
-                <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full">
-                    <defs>
-                        <mask id="moon-phase-mask">
-                            <rect x="0" y="0" width="100" height="100" fill="white" />
-                            <path :d="phaseMaskPath" fill="black" />
-                        </mask>
-                    </defs>
-
-                    <!-- Full moon image with mask and rotation -->
-                    <g :style="{ transform: `rotate(${moonRotation}deg)`, transformOrigin: 'center' }">
-                        <image href="/images/moon-phase-images/full-moon.png" width="100" height="100"
-                            preserveAspectRatio="xMidYMid slice" mask="url(#moon-phase-mask)" />
-                    </g>
-                </svg>
+                  transition-transform duration-700 ease-in-out transform hover:scale-105 mb-4">
+                <!-- Replaced SVG with TheMoon component -->
+                <TheMoon />
             </div>
 
             <!-- Moon information -->
-            <div class="text-center mt-6">
+            <div class="text-center w-full">
                 <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">
                     {{ moonData.moon.phase_name }}
                 </h2>
@@ -46,27 +34,11 @@
 
 <script setup>
 import { computed } from 'vue'
+import TheMoon from '@/components/TheMoon.vue'
 
 const moonStore = useMoonStore()
-const { getMoonPhaseMask } = useMoonImage()
 
 const moonData = computed(() => moonStore.moonData)
-
-// Calculate the mask path for the current phase
-const phaseMaskPath = computed(() => {
-    if (!moonData.value) return ''
-    return getMoonPhaseMask(
-        moonData.value.moon.phase,
-        moonData.value.moon.illumination,
-        moonData.value.moon.stage
-    )
-})
-
-// Calculate moon rotation based on parallactic angle
-const moonRotation = computed(() => {
-    if (!moonData.value?.moon?.detailed?.position?.parallactic_angle) return 0
-    return moonData.value.moon.detailed.position.parallactic_angle
-})
 
 // Get viewing conditions information
 const viewingInfo = computed(() => {

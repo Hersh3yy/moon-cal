@@ -31,6 +31,11 @@ export default defineNuxtConfig({
               'query-input': 'required name=search_term_string'
             }
           })
+        },
+        {
+          htmlAttrs: {
+            lang: 'en'
+          }
         }
       ]
     }
@@ -76,4 +81,15 @@ export default defineNuxtConfig({
       geocodeApiKey: process.env.NUXT_PUBLIC_GEOCODE_API_KEY
     }
   },
+  // Add Nitro configuration for prerendering
+  nitro: {
+    prerender: {
+      crawlLinks: false,
+      routes: ['/']
+    }
+  },
+  experimental: {
+    payloadExtraction: false
+  },
+  ssr: true,
 })

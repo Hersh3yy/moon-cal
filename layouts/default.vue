@@ -1,11 +1,17 @@
 <template>
-    <div class="min-h-screen bg-cover bg-center bg-fixed text-white"
-        style="background-image: url('/images/starry-background.jpg');">
-        <AppHeader />
-        <!-- Main content -->
-        <main class="relative z-10 max-w-3xl mx-auto px-4 flex flex-col items-center pt-14">
-            <slot />
-        </main>
+    <div class="min-h-screen bg-black text-white">
+        <!-- Fixed background -->
+        <div class="fixed inset-0 bg-cover bg-center z-0"
+            style="background-image: url('/images/starry-background.jpg');">
+        </div>
+        
+        <div class="relative z-10">
+            <AppHeader />
+            <!-- Main content -->
+            <main class="max-w-3xl mx-auto px-4 flex flex-col items-center pt-14">
+                <slot />
+            </main>
+        </div>
     </div>
 </template>
 
@@ -14,15 +20,10 @@ html,
 body {
     background-color: black;
     min-height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 body {
-    background-size: cover;
-    background-position: center;
     color: white;
-}
-
-.bg-fixed {
-    background-attachment: fixed;
 }
 </style>

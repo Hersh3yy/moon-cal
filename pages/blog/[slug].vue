@@ -4,6 +4,14 @@
       <p class="text-lg text-gray-600">Loading post...</p>
     </div>
 
+    <!-- Toast Notification -->
+    <div v-if="showToast" 
+      class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300"
+      :class="{ 'opacity-100': showToast, 'opacity-0': !showToast }"
+    >
+      {{ toastMessage }}
+    </div>
+
     <div v-else-if="error" class="text-red-500 bg-red-50 p-4 rounded-lg mb-6">
       <p>Error loading post: {{ error.message || 'An error occurred while fetching data' }}</p>
       <pre v-if="debugInfo" class="mt-2 text-xs overflow-auto bg-gray-100 p-2 rounded">{{ debugInfo }}</pre>
@@ -50,17 +58,56 @@
             ← Back to Blog
           </NuxtLink>
           
-          <button 
-            @click="sharePost" 
-            class="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-              <polyline points="16 6 12 2 8 6"></polyline>
-              <line x1="12" y1="2" x2="12" y2="15"></line>
-            </svg>
-            Share
-          </button>
+          <div class="flex items-center gap-2">
+            <!-- Social Share Buttons -->
+            <div class="flex items-center gap-2">
+              <!-- Twitter/X Share -->
+              <button 
+                @click="shareToTwitter" 
+                class="p-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
+                title="Share on Twitter/X"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                </svg>
+              </button>
+              
+              <!-- Facebook Share -->
+              <button 
+                @click="shareToFacebook" 
+                class="p-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
+                title="Share on Facebook"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </button>
+              
+              <!-- LinkedIn Share -->
+              <button 
+                @click="shareToLinkedIn" 
+                class="p-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
+                title="Share on LinkedIn"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.454C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/>
+                </svg>
+              </button>
+            </div>
+            
+            <!-- Copy Link Button -->
+            <button 
+              @click="copyLink" 
+              class="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              title="Copy link to clipboard"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+              Copy Link
+            </button>
+          </div>
         </div>
       </div>
     </article>
@@ -172,7 +219,19 @@ const loadFullPost = async () => {
       }
       postsStore.updatePost(fullPostData.value)
     } else {
-      throw new Error('Post not found')
+      // If post not found, try to fetch all posts to see if it exists
+      await fetchAllPosts()
+      
+      // Check again after fetching all posts
+      const refreshedPost = postsStore.getPost(slug.value)
+      if (refreshedPost) {
+        fullPostData.value = refreshedPost
+        if (refreshedPost.content?.json) {
+          contentHtml.value = renderContentJson(refreshedPost.content.json)
+        }
+      } else {
+        throw new Error('Post not found')
+      }
     }
   } catch (e) {
     error.value = e as Error
@@ -184,6 +243,41 @@ const loadFullPost = async () => {
     }
   } finally {
     loading.value = false
+  }
+}
+
+// Function to fetch all posts as fallback
+const fetchAllPosts = async () => {
+  try {
+    const query = gql`
+      query GetAllBlogPosts {
+        posts {
+          title
+          slug
+          date
+          excerpt
+          content {
+            json
+          }
+          coverImage {
+            url
+          }
+          author {
+            name
+          }
+          referenceUrls
+          locale
+        }
+      }
+    `
+
+    const { data } = await useAsyncQuery(query)
+    
+    if (data.value?.posts) {
+      postsStore.setPosts(data.value.posts)
+    }
+  } catch (e) {
+    console.error('Error fetching all posts:', e)
   }
 }
 
@@ -298,6 +392,11 @@ onMounted(() => {
 // Add SEO when post is available
 watch(post, (newPost) => {
   if (newPost) {
+    // Generate canonical URL for SEO
+    const canonicalUrl = process.client 
+      ? `${window.location.origin}/blog/${newPost.slug}` 
+      : `https://lunatrack.info/blog/${newPost.slug}`;
+    
     useSeo({
       title: newPost.title ? `${newPost.title} | Lunatrack Blog` : 'Lunatrack Blog',
       description: newPost.excerpt || `Read about ${newPost.title} on Lunatrack`,
@@ -305,10 +404,17 @@ watch(post, (newPost) => {
       image: newPost.coverImage?.url,
       author: newPost.author?.name || 'Lunatrack',
       publishedTime: newPost.date,
+      canonical: canonicalUrl,
     })
 
     // Add structured data for better SEO
     useHead({
+      link: [
+        {
+          rel: 'canonical',
+          href: canonicalUrl
+        }
+      ],
       script: [
         {
           type: 'application/ld+json',
@@ -329,7 +435,12 @@ watch(post, (newPost) => {
                 '@type': 'ImageObject',
                 url: 'https://lunatrack.info/logo.png'
               }
-            }
+            },
+            mainEntityOfPage: {
+              '@type': 'WebPage',
+              '@id': canonicalUrl
+            },
+            url: canonicalUrl
           })
         }
       ]
@@ -338,39 +449,82 @@ watch(post, (newPost) => {
 }, { immediate: true })
 
 // Share functionality
-const sharePost = () => {
-  const currentUrl = window.location.href;
-  const shareUrl = currentUrl.includes('?') 
-    ? `${currentUrl}&ref=share` 
-    : `${currentUrl}?ref=share`;
-  
-  if (navigator.share) {
-    // Use Web Share API if available
-    navigator.share({
-      title: post.value?.title || 'Moon Calendar Blog Post',
-      text: post.value?.excerpt || 'Check out this blog post!',
-      url: shareUrl
-    }).catch(error => {
-      console.error('Error sharing:', error);
-      fallbackShare(shareUrl);
-    });
-  } else {
-    // Fallback for browsers that don't support Web Share API
-    fallbackShare(shareUrl);
-  }
-};
+const shareToTwitter = () => {
+  const text = `${post.value?.title || 'Check out this blog post!'}`
+  const url = generateShareUrl()
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank')
+}
 
-const fallbackShare = (url) => {
-  // Copy to clipboard
-  navigator.clipboard.writeText(url).then(() => {
-    // Show a toast or notification
-    alert('Link copied to clipboard!');
-  }).catch(err => {
-    console.error('Failed to copy: ', err);
-    // Provide manual selection as last resort
-    prompt('Copy this link to share:', url);
-  });
-};
+const shareToFacebook = () => {
+  const url = generateShareUrl()
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank')
+}
+
+const shareToLinkedIn = () => {
+  const url = generateShareUrl()
+  const title = post.value?.title || 'Lunatrack Blog Post'
+  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`, '_blank')
+}
+
+// Toast notification state
+const showToast = ref(false)
+const toastMessage = ref('')
+
+// Show a toast notification
+const showNotification = (message: string) => {
+  toastMessage.value = message
+  showToast.value = true
+  setTimeout(() => {
+    showToast.value = false
+  }, 3000)
+}
+
+// Generate a canonical URL for sharing
+const generateShareUrl = () => {
+  // Use window.location.origin to ensure we have the full domain
+  const origin = process.client ? window.location.origin : 'https://lunatrack.info'
+  return `${origin}/blog/${slug.value}?ref=share`
+}
+
+// Copy link to clipboard
+const copyLink = () => {
+  const url = generateShareUrl()
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => {
+      showNotification('Link copied to clipboard!')
+    }).catch(err => {
+      console.error('Failed to copy: ', err)
+      fallbackCopy(url)
+    })
+  } else {
+    fallbackCopy(url)
+  }
+}
+
+const fallbackCopy = (url: string) => {
+  // Fallback for browsers without clipboard API
+  const textArea = document.createElement('textarea')
+  textArea.value = url
+  document.body.appendChild(textArea)
+  textArea.focus()
+  textArea.select()
+  
+  try {
+    document.execCommand('copy')
+    showNotification('Link copied to clipboard!')
+  } catch (err) {
+    console.error('Fallback: Could not copy text: ', err)
+    prompt('Copy this link to share:', url)
+  }
+  
+  document.body.removeChild(textArea)
+}
+
+// Deprecated old share function
+const sharePost = () => {
+  copyLink()
+}
 </script>
 
 <style>

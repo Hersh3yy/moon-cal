@@ -31,9 +31,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, watch, watchEffect } from 'vue'
 import { gql } from 'graphql-tag'
 import { usePostsStore } from '~/stores/posts'
+import { storeToRefs } from 'pinia'
 
 interface Post {
   title: string
@@ -59,6 +60,7 @@ interface QueryResponse {
 
 // Initialize the posts store
 const postsStore = usePostsStore()
+const { posts: storePosts } = storeToRefs(postsStore)
 
 // Define the query for fetching posts summary
 const query = gql`
@@ -89,46 +91,31 @@ const query = gql`
 `
 
 // Data fetching with Apollo
-const { data, loading, error } = await useAsyncQuery(query)
+const { data, pending, error } = await useAsyncQuery(query)
 
-// Debugging: Log the response data
-console.log('Fetched posts data:', data.value)
-
-// Safely access posts data
-const posts = computed(() => {
-  if (loading && loading.value) {
-    console.log('Loading posts...')
-    return [] // Return an empty array while loading
-  }
-  
-  if (error && error.value) {
-    console.error('Error fetching posts:', error.value)
-    return [] // Return an empty array if there's an error
-  }
-
-  // Ensure data and posts are defined before accessing
-  if (data.value && data.value.posts && Array.isArray(data.value.posts)) {
-    return data.value.posts
-  } else {
-    console.warn('Posts data is not an array or is undefined:', data.value)
-    return []
+// Update store when data is available
+watchEffect(() => {
+  if (data.value?.posts) {
+    postsStore.setPosts(data.value.posts)
   }
 })
 
-// Debugging: Log any errors
-if (error && error.value) {
-  console.error('Error fetching posts:', error.value)
-}
-
-// Watch for data changes and update store
-watch(data, (newData) => {
-  if (newData?.posts) {
-    postsStore.setPosts(newData.posts)
+// Computed posts from store
+const posts = computed(() => {
+  if (pending.value) {
+    return []
   }
-}, { immediate: true })
+  
+  if (error.value) {
+    console.error('Error fetching posts:', error.value)
+    return []
+  }
+
+  return storePosts.value
+})
 
 // Helper function to extract excerpt from content when excerpt is null
-function extractExcerpt(post: Post): string {
+function extractExcerpt(post: any): string {
   if (post.content?.json?.children) {
     // Try to find the first paragraph
     const firstParagraph = post.content.json.children.find((child: any) =>
@@ -155,56 +142,58 @@ function extractExcerpt(post: Post): string {
   return 'Read this article about the moon and its influence...'
 }
 
-// Add SEO for blog index page
-useSeo({
-  title: 'Moon Blog | Lunatrack',
-  description: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.',
-  type: 'website',
-  keywords: [
-    'moon blog',
-    'lunar articles',
-    'moon phases',
-    'celestial events',
-    'astronomy blog',
-    'lunar phenomena',
-    'moon facts',
-    'astronomical articles'
-  ]
-})
+// Add SEO when posts are available
+watchEffect(() => {
+  if (posts.value.length > 0) {
+    useSeo({
+      title: 'Moon Blog | Lunatrack',
+      description: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.',
+      type: 'website',
+      keywords: [
+        'moon blog',
+        'lunar articles',
+        'moon phases',
+        'celestial events',
+        'astronomy blog',
+        'lunar phenomena',
+        'moon facts',
+        'astronomical articles'
+      ]
+    })
 
-// Add blog listing structured data
-useHead({
-  script: [
-    {
-      type: 'application/ld+json',
-      children: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Blog',
-        name: 'Lunatrack Moon Blog',
-        description: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.',
-        url: 'https://lunatrack.info/blog',
-        publisher: {
-          '@type': 'Organization',
-          name: 'Lunatrack',
-          logo: {
-            '@type': 'ImageObject',
-            url: 'https://lunatrack.info/logo.png'
-          }
-        },
-        blogPost: posts.value.map(post => ({
-          '@type': 'BlogPosting',
-          headline: post.title,
-          url: `https://lunatrack.info/blog/${post.slug}`,
-          image: post.coverImage?.url,
-          datePublished: post.date,
-          description: post.excerpt || extractExcerpt(post),
-          author: post.author?.name ? {
-            '@type': 'Person',
-            name: post.author.name
-          } : undefined
-        }))
-      })
-    }
-  ]
+    // Add blog listing structured data
+    useHead({
+      script: [{
+        type: 'application/ld+json',
+        children: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Blog',
+          name: 'Lunatrack Moon Blog',
+          description: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.',
+          url: 'https://lunatrack.info/blog',
+          publisher: {
+            '@type': 'Organization',
+            name: 'Lunatrack',
+            logo: {
+              '@type': 'ImageObject',
+              url: 'https://lunatrack.info/logo.png'
+            }
+          },
+          blogPost: posts.value.map(post => ({
+            '@type': 'BlogPosting',
+            headline: post.title,
+            url: `https://lunatrack.info/blog/${post.slug}`,
+            image: post.coverImage?.url,
+            datePublished: post.date,
+            description: post.excerpt || extractExcerpt(post),
+            author: post.author?.name ? {
+              '@type': 'Person',
+              name: post.author.name
+            } : undefined
+          }))
+        })
+      }]
+    })
+  }
 })
 </script>

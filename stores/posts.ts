@@ -13,53 +13,39 @@ interface Post {
   }
   author?: {
     name: string
+    biography?: string
   }
   referenceUrls?: string[]
   locale?: string
+  seoOverride?: {
+    id: string
+  }
 }
 
-export const usePostsStore = defineStore('posts', {
-  state: () => ({
-    posts: [] as Post[],
-    lastFetched: null as Date | null
-  }),
+export const usePostsStore = defineStore('posts', () => {
+  const posts = ref<Post[]>([])
   
-  actions: {
-    setPosts(posts: Post[]) {
-      this.posts = posts
-      this.lastFetched = new Date()
-    },
-    
-    updatePost(newPost: Post) {
-      const index = this.posts.findIndex(post => post.slug === newPost.slug)
-      if (index !== -1) {
-        // Create a new array to avoid direct mutation
-        this.posts = [
-          ...this.posts.slice(0, index),
-          newPost,
-          ...this.posts.slice(index + 1),
-        ]
-      } else {
-        // If the post doesn't exist, you might want to add it
-        this.posts.push(newPost)
-      }
-    },
-    
-    getPost(slug: string) {
-      return this.posts.find(p => p.slug === slug) || null
-    },
-    
-    clearCache() {
-      this.lastFetched = null
-    }
-  },
+  function setPosts(newPosts: Post[]) {
+    posts.value = newPosts
+  }
   
-  getters: {
-    isCacheValid: (state) => {
-      if (!state.lastFetched) return false
-      // Cache valid for 5 minutes
-      const cacheTime = 5 * 60 * 1000
-      return (new Date().getTime() - state.lastFetched.getTime()) < cacheTime
+  function getPost(slug: string) {
+    return posts.value.find(post => post.slug === slug)
+  }
+  
+  function updatePost(post: Post) {
+    const index = posts.value.findIndex(p => p.slug === post.slug)
+    if (index !== -1) {
+      posts.value[index] = post
+    } else {
+      posts.value.push(post)
     }
+  }
+
+  return {
+    posts,
+    setPosts,
+    getPost,
+    updatePost
   }
 }) 
