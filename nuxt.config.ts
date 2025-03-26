@@ -11,6 +11,9 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
+      htmlAttrs: {
+        lang: 'en'
+      },
       script: [
         {
           src: 'https://cloud.umami.is/script.js',
@@ -31,11 +34,6 @@ export default defineNuxtConfig({
               'query-input': 'required name=search_term_string'
             }
           })
-        },
-        {
-          htmlAttrs: {
-            lang: 'en'
-          }
         }
       ]
     }
@@ -75,21 +73,51 @@ export default defineNuxtConfig({
     url: "https://lunatrack.info",
     name: "Lunatrack - your lunar guide"
   },
+  sitemap: {
+    urls: async () => {
+      // In a real implementation, you would fetch your blog posts here
+      return [
+        '/',
+        '/blog'
+      ]
+    }
+  },
+  robots: {
+    StringAfter: ['Sitemap: https://lunatrack.info/sitemap.xml'],
+    rules: {
+      UserAgent: '*',
+      Allow: '/'
+    }
+  },
   runtimeConfig: {
     public: {
       moonApiKey: process.env.NUXT_PUBLIC_MOON_API_KEY,
       geocodeApiKey: process.env.NUXT_PUBLIC_GEOCODE_API_KEY
     }
   },
-  // Add Nitro configuration for prerendering
+  // Add Nitro configuration for prerendering and improved SSR
   nitro: {
     prerender: {
-      crawlLinks: false,
-      routes: ['/']
-    }
+      crawlLinks: true,
+      routes: ['/', '/blog']
+    },
+    routeRules: {
+      // Specific rules to prevent 500 errors
+      '/blog/**': {
+        swr: 60 * 60, // Cache for 1 hour
+        isr: false
+      }
+    },
+    errorHandler: '~/server/error-handler.ts'
+  },
+  routeRules: {
+    // Apply global route rules
+    '/blog': { swr: 60 * 60 * 24 }, // Cache blog index for 24 hours
+    '/blog/**': { swr: 60 * 60 * 12 } // Cache blog posts for 12 hours
   },
   experimental: {
-    payloadExtraction: false
+    payloadExtraction: true,
+    renderJsonPayloads: true
   },
   ssr: true,
 })

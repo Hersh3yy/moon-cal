@@ -52,6 +52,7 @@ interface Post {
   }
   referenceUrls?: string[]
   locale?: string
+  keywords?: string[]
 }
 
 interface QueryResponse {
@@ -61,6 +62,11 @@ interface QueryResponse {
 // Initialize the posts store
 const postsStore = usePostsStore()
 const { posts: storePosts } = storeToRefs(postsStore)
+
+// Define page meta for improved SSR handling
+definePageMeta({
+  keepalive: true
+})
 
 // Define the query for fetching posts summary
 const query = gql`
@@ -145,24 +151,58 @@ function extractExcerpt(post: any): string {
 // Add SEO when posts are available
 watchEffect(() => {
   if (posts.value.length > 0) {
+    const allKeywords = new Set([
+      'moon blog',
+      'lunar articles',
+      'moon phases',
+      'celestial events',
+      'astronomy blog',
+      'lunar phenomena',
+      'moon facts',
+      'astronomical articles'
+    ]);
+    
+    // Extract keywords from posts if available
+    posts.value.forEach(post => {
+      if (post.keywords) {
+        post.keywords.forEach(keyword => allKeywords.add(keyword));
+      }
+    });
+    
+    // Generate canonical URL
+    const canonicalUrl = process.client
+      ? `${window.location.origin}/blog`
+      : 'https://lunatrack.info/blog';
+    
     useSeo({
       title: 'Moon Blog | Lunatrack',
       description: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.',
       type: 'website',
-      keywords: [
-        'moon blog',
-        'lunar articles',
-        'moon phases',
-        'celestial events',
-        'astronomy blog',
-        'lunar phenomena',
-        'moon facts',
-        'astronomical articles'
-      ]
+      canonical: canonicalUrl,
+      keywords: Array.from(allKeywords)
     })
 
-    // Add blog listing structured data
+    // Add additional meta tags for better SEO
     useHead({
+      meta: [
+        // Add additional metadata for better SEO
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Moon Blog | Lunatrack' },
+        { name: 'twitter:description', content: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.' },
+        { name: 'twitter:image', content: posts.value[0]?.coverImage?.url || '/images/moon-phase-images/full-moon.png' },
+        // OpenGraph tags for social sharing
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: 'Moon Blog | Lunatrack' },
+        { property: 'og:description', content: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.' },
+        { property: 'og:image', content: posts.value[0]?.coverImage?.url || '/images/moon-phase-images/full-moon.png' },
+        { property: 'og:url', content: canonicalUrl }
+      ],
+      link: [
+        {
+          rel: 'canonical',
+          href: canonicalUrl
+        }
+      ],
       script: [{
         type: 'application/ld+json',
         children: JSON.stringify({
@@ -170,7 +210,7 @@ watchEffect(() => {
           '@type': 'Blog',
           name: 'Lunatrack Moon Blog',
           description: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.',
-          url: 'https://lunatrack.info/blog',
+          url: canonicalUrl,
           publisher: {
             '@type': 'Organization',
             name: 'Lunatrack',
@@ -193,6 +233,13 @@ watchEffect(() => {
           }))
         })
       }]
+    })
+  } else if (error.value) {
+    // Add minimal SEO even if there's an error
+    useSeo({
+      title: 'Moon Blog | Lunatrack',
+      description: 'Explore our collection of articles about the moon, lunar phases, celestial events, and astronomical phenomena.',
+      type: 'website'
     })
   }
 })

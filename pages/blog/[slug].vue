@@ -159,6 +159,7 @@ interface PostResponse {
     }
     referenceUrls?: string[]
     locale?: string
+    keywords?: string[]
   }
 }
 
@@ -180,6 +181,7 @@ const loadFullPost = async () => {
     if (storePost?.content?.json) {
       fullPostData.value = storePost
       contentHtml.value = renderContentJson(storePost.content.json)
+      loading.value = false
       return
     }
 
@@ -202,6 +204,7 @@ const loadFullPost = async () => {
           }
           referenceUrls
           locale
+          keywords
         }
       }
     `
@@ -209,6 +212,7 @@ const loadFullPost = async () => {
     const { data, error: queryError } = await useAsyncQuery(query, { slug: slug.value })
 
     if (queryError.value) {
+      console.error("GraphQL error:", queryError.value)
       throw queryError.value
     }
 
@@ -397,6 +401,11 @@ watch(post, (newPost) => {
       ? `${window.location.origin}/blog/${newPost.slug}` 
       : `https://lunatrack.info/blog/${newPost.slug}`;
     
+    // Gather keywords from the post or use defaults
+    const keywords = newPost.keywords || [
+      'moon', 'lunar', 'astronomy', 'celestial', 'blog', 'lunatrack'
+    ];
+    
     useSeo({
       title: newPost.title ? `${newPost.title} | Lunatrack Blog` : 'Lunatrack Blog',
       description: newPost.excerpt || `Read about ${newPost.title} on Lunatrack`,
@@ -405,6 +414,7 @@ watch(post, (newPost) => {
       author: newPost.author?.name || 'Lunatrack',
       publishedTime: newPost.date,
       canonical: canonicalUrl,
+      keywords: keywords
     })
 
     // Add structured data for better SEO
@@ -415,6 +425,20 @@ watch(post, (newPost) => {
           href: canonicalUrl
         }
       ],
+      meta: [
+        // Add additional metadata for better SEO
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: newPost.title },
+        { name: 'twitter:description', content: newPost.excerpt || `Read about ${newPost.title} on Lunatrack` },
+        { name: 'twitter:image', content: newPost.coverImage?.url },
+        // Add article-specific OpenGraph tags
+        { property: 'og:type', content: 'article' },
+        { property: 'og:title', content: newPost.title },
+        { property: 'og:description', content: newPost.excerpt || `Read about ${newPost.title} on Lunatrack` },
+        { property: 'og:image', content: newPost.coverImage?.url },
+        { property: 'og:url', content: canonicalUrl },
+        { property: 'article:published_time', content: newPost.date }
+      ],
       script: [
         {
           type: 'application/ld+json',
@@ -424,6 +448,9 @@ watch(post, (newPost) => {
             headline: newPost.title,
             image: newPost.coverImage?.url,
             datePublished: newPost.date,
+            dateModified: newPost.date,
+            description: newPost.excerpt || `Read about ${newPost.title} on Lunatrack`,
+            keywords: keywords.join(', '),
             author: {
               '@type': 'Person',
               name: newPost.author?.name || 'Lunatrack'
@@ -525,6 +552,15 @@ const fallbackCopy = (url: string) => {
 const sharePost = () => {
   copyLink()
 }
+
+// Define page meta for improved SSR handling
+definePageMeta({
+  validate: async (route) => {
+    // This is a very basic validation just to ensure the route has a slug parameter
+    return !!route.params.slug;
+  },
+  keepalive: true
+})
 </script>
 
 <style>
