@@ -3,20 +3,20 @@
     <UiBaseCard :title="props.title" :mode="props.mode" :colSpan="props.colSpan">
         <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
-                <span class="moon-text-primary">{{ moonData?.moon_phases?.full_moon?.next?.name }}</span>
+                <span class="moon-text-primary">{{ nextFullMoon?.name }}</span>
             </div>
             <div class="flex items-center gap-4">
-                <img :src="getMoonImage(moonData?.moon_phases?.full_moon?.next?.name)"
-                    :alt="moonData?.moon_phases?.full_moon?.next?.name" class="w-12 h-12 object-contain" />
+                <img :src="getMoonImage(nextFullMoon?.name)"
+                    :alt="nextFullMoon?.name" class="w-12 h-12 object-contain" />
                 <div class="flex flex-col flex-1">
-                    <p class="text-sm opacity-75">{{ moonData?.moon_phases?.full_moon?.next?.description }}</p>
+                    <p class="text-sm opacity-75">{{ nextFullMoon?.description }}</p>
                     <a :href="getTimeAndDateLink" target="_blank"
                         class="text-sm text-blue-400 hover:text-blue-300 mt-1">
-                        Learn more about {{ moonData?.moon_phases?.full_moon?.next?.name }}
+                        Learn more about {{ nextFullMoon?.name }}
                     </a>
                     <p class="text-sm opacity-75 mt-1">
-                        {{ new Date(moonData?.moon_phases?.full_moon?.next?.timestamp ?
-                            moonData?.moon_phases?.full_moon?.next?.timestamp * 1000 : 0).toLocaleDateString() }}
+                        {{ new Date(nextFullMoon?.timestamp ?
+                            nextFullMoon?.timestamp * 1000 : 0).toLocaleDateString() }}
                     </p>
                 </div>
             </div>
@@ -47,6 +47,14 @@ const props = withDefaults(defineProps<BaseWidgetProps>(), {
 
 const { moonData } = storeToRefs(useMoonStore())
 
+// Computed property to handle both API response structures
+const nextFullMoon = computed(() => {
+    return (
+        moonData.value?.moon_phases?.full_moon?.next || 
+        moonData.value?.moon?.detailed?.upcoming_phases?.full_moon?.next
+    )
+})
+
 // Map moon names to their imported images
 const moonImages = {
     'Beaver Moon': beaverMoonIcon,
@@ -69,7 +77,7 @@ const getMoonImage = (moonName: string | undefined) => {
 }
 
 const getTimeAndDateLink = computed(() => {
-    const moonName = moonData.value?.moon_phases?.full_moon?.next?.name
+    const moonName = nextFullMoon.value?.name
     if (!moonName) return ''
     const linkName = moonName.toLowerCase().replace(' moon', '').replace(' ', '')
     return `https://www.timeanddate.com/astronomy/moon/${linkName}.html`

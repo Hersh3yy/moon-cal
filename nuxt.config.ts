@@ -14,6 +14,21 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'en'
       },
+      meta: [
+        { name: 'description', content: 'Get all the information you want and need about the moon here.' },
+        { property: 'og:title', content: 'Lunatrack - Your Lunar Guide' },
+        { property: 'og:description', content: 'Get all the information you want and need about the moon here.' },
+        { property: 'og:image', content: '/images/moon-phase-images/full-moon.png' },
+        { property: 'og:url', content: 'https://lunatrack.info' },
+        { property: 'og:type', content: 'website' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'Lunatrack - Your Lunar Guide' },
+        { name: 'twitter:description', content: 'Get all the information you want and need about the moon here.' },
+        { name: 'twitter:image', content: '/images/moon-phase-images/full-moon.png' },
+        { name: 'twitter:site', content: '@lunatrack' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { charset: 'utf-8' }
+      ],
       script: [
         {
           src: 'https://cloud.umami.is/script.js',
@@ -44,49 +59,12 @@ export default defineNuxtConfig({
       "@heroicons/vue",
     ]
   },
-  modules: ["@pinia/nuxt", "@nuxtjs/apollo", "@nuxtjs/seo", "@nuxtjs/sitemap", "@nuxtjs/robots"],
+  modules: ["@pinia/nuxt", "@nuxtjs/apollo"],
   apollo: {
     clients: {
       default: {
         httpEndpoint: 'https://eu-west-2.cdn.hygraph.com/content/cm60s84ew02la07v0ryt7qagq/master'
       }
-    }
-  },
-  seo: {
-    meta: {
-      description: 'Get all the information you want and need about the moon here.',
-      ogTitle: 'Lunatrack - Your Lunar Guide',
-      ogDescription: 'Get all the information you want and need about the moon here.',
-      ogImage: '/images/moon-phase-images/full-moon.png',
-      ogUrl: 'https://lunatrack.info',
-      ogType: 'website',
-      twitterCard: 'summary_large_image',
-      twitterTitle: 'Lunatrack - Your Lunar Guide',
-      twitterDescription: 'Get all the information you want and need about the moon here.',
-      twitterImage: '/images/moon-phase-images/full-moon.png',
-      twitterSite: '@lunatrack',
-      viewport: 'width=device-width, initial-scale=1',
-      charset: 'utf-8'
-    }
-  },
-  site: {
-    url: "https://lunatrack.info",
-    name: "Lunatrack - your lunar guide"
-  },
-  sitemap: {
-    urls: async () => {
-      // In a real implementation, you would fetch your blog posts here
-      return [
-        '/',
-        '/blog'
-      ]
-    }
-  },
-  robots: {
-    StringAfter: ['Sitemap: https://lunatrack.info/sitemap.xml'],
-    rules: {
-      UserAgent: '*',
-      Allow: '/'
     }
   },
   runtimeConfig: {
@@ -104,11 +82,9 @@ export default defineNuxtConfig({
     routeRules: {
       // Specific rules to prevent 500 errors
       '/blog/**': {
-        swr: 60 * 60, // Cache for 1 hour
-        isr: false
+        swr: 60 * 60 // Cache for 1 hour
       }
-    },
-    errorHandler: '~/server/error-handler.ts'
+    }
   },
   routeRules: {
     // Apply global route rules

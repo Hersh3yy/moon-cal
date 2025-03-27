@@ -112,24 +112,7 @@ interface MoonData {
                     };
                 };
             };
-            upcoming_phases: {
-                new_moon: {
-                    last: MoonPhase;
-                    next: MoonPhase;
-                };
-                first_quarter: {
-                    last: MoonPhase;
-                    next: MoonPhase;
-                };
-                full_moon: {
-                    last: MoonPhase;
-                    next: MoonPhase;
-                };
-                last_quarter: {
-                    last: MoonPhase;
-                    next: MoonPhase;
-                };
-            };
+            upcoming_phases: MoonPhases;
             illumination_details: {
                 percentage: number;
                 visible_fraction: number;
@@ -148,7 +131,7 @@ interface MoonData {
             };
         };
     };
-    moon_phases: MoonPhases;
+    moon_phases?: MoonPhases;
     location: Location;
 }
 
@@ -203,7 +186,13 @@ export const useMoonStore = defineStore("moon", {
           throw new Error(`Failed to parse API response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
         }
 
-        if (!data?.moon_phases?.full_moon?.next) {
+        // Check if the detailed upcoming_phases exists and create moon_phases property if it doesn't exist
+        if (data?.moon?.detailed?.upcoming_phases && !data.moon_phases) {
+          data.moon_phases = data.moon.detailed.upcoming_phases;
+        }
+
+        // Validate that we have the required data 
+        if (!data?.moon_phases?.full_moon?.next && !data?.moon?.detailed?.upcoming_phases?.full_moon?.next) {
           throw new Error('Invalid data structure received from API');
         }
 

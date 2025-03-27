@@ -209,21 +209,36 @@ const loadFullPost = async () => {
       }
     `
 
-    const { data, error: queryError } = await useAsyncQuery(query, { slug: slug.value })
+    // Using try/catch with more resilient error handling
+    try {
+      const { data, error: queryError } = await useAsyncQuery(query, { slug: slug.value })
 
-    if (queryError.value) {
-      console.error("GraphQL error:", queryError.value)
-      throw queryError.value
-    }
-
-    if (data.value?.post) {
-      fullPostData.value = data.value.post
-      if (fullPostData.value.content?.json) {
-        contentHtml.value = renderContentJson(fullPostData.value.content.json)
+      if (queryError.value) {
+        console.error("GraphQL error:", queryError.value)
+        throw queryError.value
       }
-      postsStore.updatePost(fullPostData.value)
-    } else {
-      // If post not found, try to fetch all posts to see if it exists
+
+      if (data.value?.post) {
+        fullPostData.value = data.value.post
+        if (fullPostData.value.content?.json) {
+          contentHtml.value = renderContentJson(fullPostData.value.content.json)
+        }
+        postsStore.updatePost(fullPostData.value)
+      } else {
+        await fetchAllPosts()
+        const refreshedPost = postsStore.getPost(slug.value)
+        if (refreshedPost) {
+          fullPostData.value = refreshedPost
+          if (refreshedPost.content?.json) {
+            contentHtml.value = renderContentJson(refreshedPost.content.json)
+          }
+        } else {
+          throw new Error('Post not found')
+        }
+      }
+    } catch (queryErr) {
+      console.error('Failed to fetch individual post:', queryErr)
+      // Try fetching all posts as a fallback
       await fetchAllPosts()
       
       // Check again after fetching all posts
@@ -234,7 +249,7 @@ const loadFullPost = async () => {
           contentHtml.value = renderContentJson(refreshedPost.content.json)
         }
       } else {
-        throw new Error('Post not found')
+        throw new Error('Post not found after retry')
       }
     }
   } catch (e) {

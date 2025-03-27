@@ -5,6 +5,9 @@
             <div class="text-right">
                 <span class="moon-text-primary moon-card-text">{{ moonData?.moon?.next_lunar_eclipse?.type }}</span>
                 <p class="text-sm opacity-75">{{ formatDate(moonData?.moon?.next_lunar_eclipse?.datestamp) }}</p>
+                <p v-if="moonData?.moon?.next_lunar_eclipse?.visibility_regions" class="text-xs opacity-75 mt-1">
+                    Visible in: {{ moonData?.moon?.next_lunar_eclipse?.visibility_regions }}
+                </p>
             </div>
         </div>
     </UiBaseCard>

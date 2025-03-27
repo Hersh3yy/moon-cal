@@ -43,6 +43,10 @@
                     <span class="text-zinc-400">Age:</span>
                     <span class="text-white">{{ moonStore.moonData?.moon?.age_days }} days</span>
                 </div>
+                <div v-if="moonStore.moonData?.moon?.detailed?.visibility?.best_viewing_time" class="moon-card-row">
+                    <span class="text-zinc-400">Best view:</span>
+                    <span class="text-white">{{ moonStore.moonData?.moon?.detailed?.visibility?.best_viewing_time }}</span>
+                </div>
             </div>
         </div>
     </UiBaseCard>
