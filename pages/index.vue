@@ -17,6 +17,7 @@
                 <WidgetsMoonSign title="Current Moon Sign" />
                 <WidgetsSunSign title="Current Sun Sign" />
                 <WidgetsMoonPhase title="Current Moon Phase" />
+                <WidgetsOptimalViewing title="Optimal Moon Viewing Period" />
                 <WidgetsSunTimes title="Today's Sun Times" />
                 <WidgetsMoonTimes title="Today's Moon Times" />
                 <WidgetsNextEclipse title="Next Lunar Eclipse" />

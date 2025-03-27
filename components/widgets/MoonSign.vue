@@ -8,10 +8,11 @@
                 <div class="flex items-center justify-between">
                     <span class="moon-text-primary">
                         {{ moonData?.moon?.zodiac?.moon_sign }}
+                        <span class="ml-1 text-sm opacity-75">{{ getZodiacSymbol(moonData?.moon?.zodiac?.moon_sign) }}</span>
                     </span>
                 </div>
-                <p class="text-sm opacity-75 mt-1">{{ getZodiacDescription(moonData?.moon?.zodiac?.moon_sign) }}
-                </p>
+                <p class="text-sm opacity-75 mt-1">{{ getZodiacDescription(moonData?.moon?.zodiac?.moon_sign) }}</p>
+                <p class="text-xs opacity-50 mt-1">{{ getZodiacDateRange(moonData?.moon?.zodiac?.moon_sign) }}</p>
             </div>
         </div>
     </UiBaseCard>
@@ -59,7 +60,7 @@ const zodiacImages = {
 
 // Function to get the correct zodiac image based on sign
 const getZodiacImage = (sign: string | undefined) => {
-    if (!sign) return leoIcon // Default fallback (since current moon sign is Leo in the data)
+    if (!sign) return leoIcon // Default fallback
     return zodiacImages[sign as keyof typeof zodiacImages] || leoIcon
 }
 
@@ -79,8 +80,48 @@ const zodiacDescriptions = {
     'Pisces': 'Highly empathetic with flowing emotional awareness'
 }
 
+const zodiacSymbols = {
+    'Aries': '♈',
+    'Taurus': '♉',
+    'Gemini': '♊',
+    'Cancer': '♋',
+    'Leo': '♌',
+    'Virgo': '♍',
+    'Libra': '♎',
+    'Scorpio': '♏',
+    'Sagittarius': '♐',
+    'Capricorn': '♑',
+    'Aquarius': '♒',
+    'Pisces': '♓'
+}
+
+const zodiacDateRanges = {
+    'Aries': 'Mar 21 - Apr 19',
+    'Taurus': 'Apr 20 - May 20',
+    'Gemini': 'May 21 - Jun 20',
+    'Cancer': 'Jun 21 - Jul 22',
+    'Leo': 'Jul 23 - Aug 22',
+    'Virgo': 'Aug 23 - Sep 22',
+    'Libra': 'Sep 23 - Oct 22',
+    'Scorpio': 'Oct 23 - Nov 21',
+    'Sagittarius': 'Nov 22 - Dec 21',
+    'Capricorn': 'Dec 22 - Jan 19',
+    'Aquarius': 'Jan 20 - Feb 18',
+    'Pisces': 'Feb 19 - Mar 20'
+}
+
 const getZodiacDescription = (sign: string | undefined) => {
     if (!sign) return ''
     return zodiacDescriptions[sign as keyof typeof zodiacDescriptions] || ''
+}
+
+const getZodiacSymbol = (sign: string | undefined) => {
+    if (!sign) return ''
+    return zodiacSymbols[sign as keyof typeof zodiacSymbols] || ''
+}
+
+const getZodiacDateRange = (sign: string | undefined) => {
+    if (!sign) return ''
+    return zodiacDateRanges[sign as keyof typeof zodiacDateRanges] || ''
 }
 </script>
