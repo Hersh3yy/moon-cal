@@ -37,7 +37,7 @@ export default defineNuxtConfig({
         },
         {
           type: 'application/ld+json',
-          children: JSON.stringify({
+          innerHTML: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'WebSite',
             name: 'Lunatrack',
@@ -65,7 +65,7 @@ export default defineNuxtConfig({
   apollo: {
     clients: {
       default: {
-        httpEndpoint: process.env.GRAPHQL_ENDPOINT || 'https://api.example.com/graphql',
+        httpEndpoint: 'https://eu-west-2.cdn.hygraph.com/content/cm60s84ew02la07v0ryt7qagq/master',
         httpLinkOptions: {
           credentials: 'same-origin'
         }
@@ -75,7 +75,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       moonApiKey: process.env.NUXT_PUBLIC_MOON_API_KEY,
-      geocodeApiKey: process.env.NUXT_PUBLIC_GEOCODE_API_KEY
+      geocodeApiKey: process.env.NUXT_PUBLIC_GEOCODE_API_KEY,
+      graphqlEndpoint: process.env.GRAPHQL_ENDPOINT
     }
   },
   nitro: {

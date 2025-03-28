@@ -40,6 +40,9 @@ definePageMeta({
   keepalive: true
 })
 
+// Get the Apollo configuration
+const config = useRuntimeConfig()
+
 // Define the query for fetching posts summary
 const query = gql`
   query GetPosts {
@@ -58,9 +61,12 @@ const query = gql`
   }
 `
 
-// Data fetching with Apollo
+// Data fetching with Apollo and better error handling
 const { data, pending, error } = await useAsyncQuery(query, {
-  // Add error handling for build time
+  clientId: 'default',
+  context: {
+    errorPolicy: 'all'
+  },
   onError: (error) => {
     console.error('GraphQL Error:', error)
     // Return empty data during build
