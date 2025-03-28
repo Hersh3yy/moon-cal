@@ -26,19 +26,42 @@ export const usePostsStore = defineStore('posts', () => {
   const posts = ref<Post[]>([])
   
   function setPosts(newPosts: Post[]) {
-    posts.value = newPosts
+    // Ensure data is serializable
+    posts.value = newPosts.map(post => ({
+      ...post,
+      content: post.content ? {
+        json: JSON.parse(JSON.stringify(post.content.json))
+      } : undefined
+    }))
   }
   
   function getPost(slug: string) {
-    return posts.value.find(post => post.slug === slug)
+    const post = posts.value.find(post => post.slug === slug)
+    if (!post) return undefined
+    
+    // Return a serializable copy
+    return {
+      ...post,
+      content: post.content ? {
+        json: JSON.parse(JSON.stringify(post.content.json))
+      } : undefined
+    }
   }
   
   function updatePost(post: Post) {
+    // Ensure data is serializable
+    const serializedPost = {
+      ...post,
+      content: post.content ? {
+        json: JSON.parse(JSON.stringify(post.content.json))
+      } : undefined
+    }
+
     const index = posts.value.findIndex(p => p.slug === post.slug)
     if (index !== -1) {
-      posts.value[index] = post
+      posts.value[index] = serializedPost
     } else {
-      posts.value.push(post)
+      posts.value.push(serializedPost)
     }
   }
 

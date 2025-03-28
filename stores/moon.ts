@@ -84,7 +84,7 @@ interface MoonData {
         moonrise_timestamp: number;
         moonset: string;
         moonset_timestamp: number;
-        next_lunar_eclipse: {
+        next_lunar_eclipse?: {
             timestamp: number;
             datestamp: string;
             type: string;
@@ -148,6 +148,7 @@ interface MoonData {
             };
         };
     };
+    moon_phases?: MoonPhases;
     location: Location;
 }
 
@@ -167,12 +168,14 @@ export const useMoonStore = defineStore("moon", {
 
   actions: {
     async fetchMoonData() {
+      console.log('Starting fetchMoonData...')
       this.loading = true;
       this.error = null;
       this.dataStructureWarnings = [];
 
       try {
         const config = useRuntimeConfig();
+        console.log('Fetching from API with coordinates:', this.coordinates)
         
         const response = await fetch(
           `https://moon-phase.p.rapidapi.com/advanced?lat=${this.coordinates.lat}&lon=${this.coordinates.lon}`,
@@ -189,6 +192,8 @@ export const useMoonStore = defineStore("moon", {
         }
 
         const rawText = await response.text();
+        console.log('Raw API response:', rawText.substring(0, 200) + '...') // Log first 200 chars
+        
         const lastJsonBraceIndex = rawText.lastIndexOf('}}');
         
         if (lastJsonBraceIndex === -1) {
@@ -200,7 +205,15 @@ export const useMoonStore = defineStore("moon", {
         
         try {
           data = JSON.parse(cleanedJson);
+          console.log('Parsed API response structure:', {
+            hasMoon: !!data.moon,
+            hasDetailed: !!data.moon?.detailed,
+            phase: data.moon?.phase_name,
+            illumination: data.moon?.illumination,
+            detailedPercentage: data.moon?.detailed?.illumination_details?.percentage
+          })
         } catch (parseError: unknown) {
+          console.error('JSON parse error:', parseError)
           throw new Error(`Failed to parse API response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
         }
 
@@ -230,18 +243,19 @@ export const useMoonStore = defineStore("moon", {
           this.dataStructureWarnings.push('API response contains deprecated moon_phases structure');
         }
 
-        // Set the data even if some fields are missing
+        // Set the data
         this.moonData = data;
+        console.log('Successfully set moonData in store')
       } catch (error) {
+        console.error('Error in fetchMoonData:', error)
         this.error = error instanceof Error ? error.message : 'Unknown error occurred';
-        console.error('Error fetching moon data:', error);
-        // Don't throw the error, just log it and continue
       } finally {
         this.loading = false;
       }
     },
 
     async updateLocation(city: string) {
+      console.log('Starting updateLocation for city:', city)
       if (!city?.trim()) {
         this.error = 'Please enter a valid city name';
         return;
@@ -253,6 +267,7 @@ export const useMoonStore = defineStore("moon", {
       try {
         const { fetchCoordinates, coordinates, displayName } = useCoordinateLookup();
         await fetchCoordinates(city);
+        console.log('Coordinates lookup result:', coordinates.value)
 
         if (!coordinates.value?.lat || !coordinates.value?.lon) {
           throw new Error('Invalid coordinates received from lookup');
@@ -266,6 +281,7 @@ export const useMoonStore = defineStore("moon", {
 
         await this.fetchMoonData();
       } catch (error) {
+        console.error('Error in updateLocation:', error)
         this.error = error instanceof Error ? error.message : 'Failed to update location';
         throw error;
       } finally {

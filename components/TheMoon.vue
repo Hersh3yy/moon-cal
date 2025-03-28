@@ -1,29 +1,36 @@
 <template>
-  <div class="relative w-full h-full rounded-full overflow-hidden bg-gray-900 moon-animate">
-    <svg viewBox="0 0 100 100" class="w-full h-full">
-      <!-- Moon base (dark side) -->
-      <circle cx="50" cy="50" r="50" fill="#1a1a1a" />
-      
-      <!-- Moon illuminated part -->
-      <defs>
-        <mask id="moonMask">
-          <!-- Dark side (black) -->
-          <circle cx="50" cy="50" r="50" fill="black" />
-          <!-- Illuminated part (white) -->
-          <path :d="getIlluminationPath" fill="white" />
-        </mask>
-      </defs>
-      
-      <!-- Illuminated moon surface -->
-      <circle 
-        cx="50" 
-        cy="50" 
-        r="50" 
-        fill="#ffffff" 
-        mask="url(#moonMask)"
-      />
-    </svg>
-  </div>
+  <ClientOnly>
+    <div class="relative w-full h-full rounded-full overflow-hidden bg-gray-900 moon-animate">
+      <svg viewBox="0 0 100 100" class="w-full h-full">
+        <!-- Moon base (dark side) -->
+        <circle cx="50" cy="50" r="50" fill="#1a1a1a" />
+        
+        <!-- Moon illuminated part -->
+        <defs>
+          <mask id="moonMask">
+            <!-- Dark side (black) -->
+            <circle cx="50" cy="50" r="50" fill="black" />
+            <!-- Illuminated part (white) -->
+            <path :d="getIlluminationPath" fill="white" />
+          </mask>
+        </defs>
+        
+        <!-- Illuminated moon surface -->
+        <circle 
+          cx="50" 
+          cy="50" 
+          r="50" 
+          fill="#ffffff" 
+          mask="url(#moonMask)"
+        />
+      </svg>
+    </div>
+    <template #fallback>
+      <div class="relative w-full h-full rounded-full overflow-hidden bg-gray-900 animate-pulse">
+        <div class="w-full h-full bg-white/10"></div>
+      </div>
+    </template>
+  </ClientOnly>
 </template>
 
 <script setup>
@@ -38,11 +45,11 @@ const illuminationPercentage = computed(() => {
   if (!moonData.value) return 0
   
   // Try to get detailed percentage first
-  const detailedPercentage = moonData.value.moon.detailed?.illumination_details?.percentage
+  const detailedPercentage = moonData.value.moon?.detailed?.illumination_details?.percentage
   if (detailedPercentage !== undefined) return detailedPercentage
   
   // Fallback to basic illumination string
-  const basicIllumination = moonData.value.moon.illumination
+  const basicIllumination = moonData.value.moon?.illumination
   if (!basicIllumination) return 0
   
   // Convert "3%" to 3
