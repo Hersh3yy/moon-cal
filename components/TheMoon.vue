@@ -1,44 +1,70 @@
 <template>
   <div class="relative w-full h-full rounded-full overflow-hidden bg-gray-900 moon-animate">
-    <!-- Direct image approach -->
-    <img :src="moonImagePath" alt="Moon" class="w-full h-full object-cover" />
+    <svg viewBox="0 0 100 100" class="w-full h-full">
+      <!-- Moon base (dark side) -->
+      <circle cx="50" cy="50" r="50" fill="#1a1a1a" />
+      
+      <!-- Moon illuminated part -->
+      <defs>
+        <mask id="moonMask">
+          <!-- Dark side (black) -->
+          <circle cx="50" cy="50" r="50" fill="black" />
+          <!-- Illuminated part (white) -->
+          <path :d="getIlluminationPath" fill="white" />
+        </mask>
+      </defs>
+      
+      <!-- Illuminated moon surface -->
+      <circle 
+        cx="50" 
+        cy="50" 
+        r="50" 
+        fill="#ffffff" 
+        mask="url(#moonMask)"
+      />
+    </svg>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useMoonStore } from '@/stores/moon'
 
 const moonStore = useMoonStore()
 const moonData = computed(() => moonStore.moonData)
 
-// Determine the correct moon image based on phase
-const moonImagePath = computed(() => {
-  if (!moonData.value) return '/images/moon-phase-images/full-moon.png'
+// Get illumination percentage from detailed data or fallback to basic data
+const illuminationPercentage = computed(() => {
+  if (!moonData.value) return 0
   
-  const phase = moonData.value.moon.phase_name?.toLowerCase() || 'full moon'
+  // Try to get detailed percentage first
+  const detailedPercentage = moonData.value.moon.detailed?.illumination_details?.percentage
+  if (detailedPercentage !== undefined) return detailedPercentage
   
-  // Map phase name to image file
-  const phaseMap = {
-    'new moon': 'new-moon',
-    'waxing crescent': 'waxing-crescent',
-    'first quarter': 'first-quarter',
-    'waxing gibbous': 'waxing-gibbous',
-    'full moon': 'full-moon',
-    'waning gibbous': 'waning-gibbous',
-    'last quarter': 'last-quarter',
-    'waning crescent': 'waning-crescent'
-  }
+  // Fallback to basic illumination string
+  const basicIllumination = moonData.value.moon.illumination
+  if (!basicIllumination) return 0
   
-  const imageName = phaseMap[phase] || 'full-moon'
-  return `/images/moon-phase-images/${imageName}.png`
+  // Convert "3%" to 3
+  return parseFloat(basicIllumination.replace('%', ''))
 })
 
-// Ensure the image is loaded
-onMounted(() => {
-  // Preload the image
-  const img = new Image()
-  img.src = moonImagePath.value
+// Calculate the SVG path for the illuminated part
+const getIlluminationPath = computed(() => {
+  const percentage = illuminationPercentage.value
+  if (percentage <= 0) return ''
+  if (percentage >= 100) return 'M 0 50 A 50 50 0 1 1 100 50 A 50 50 0 1 1 0 50'
+  
+  // Calculate the intersection points of the illumination line
+  const angle = (percentage / 100) * Math.PI
+  const x1 = 50 + 50 * Math.cos(angle)
+  const y1 = 50 + 50 * Math.sin(angle)
+  const x2 = 50 + 50 * Math.cos(-angle)
+  const y2 = 50 + 50 * Math.sin(-angle)
+  
+  // Create the path
+  const largeArcFlag = percentage > 50 ? 1 : 0
+  return `M ${x1} ${y1} A 50 50 0 ${largeArcFlag} 1 ${x2} ${y2} A 50 50 0 ${largeArcFlag} 1 ${x1} ${y1}`
 })
 </script>
 

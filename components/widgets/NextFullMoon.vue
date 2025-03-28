@@ -49,10 +49,19 @@ const { moonData } = storeToRefs(useMoonStore())
 
 // Computed property to handle both API response structures
 const nextFullMoon = computed(() => {
-    return (
-        moonData.value?.moon_phases?.full_moon?.next || 
-        moonData.value?.moon?.detailed?.upcoming_phases?.full_moon?.next
-    )
+    // Try new structure first
+    const newStructure = moonData.value?.moon?.detailed?.upcoming_phases?.full_moon?.next;
+    if (newStructure) return newStructure;
+
+    // Fallback to old structure
+    const oldStructure = moonData.value?.moon_phases?.full_moon?.next;
+    if (oldStructure) {
+        console.warn('Using deprecated moon_phases structure for next full moon data');
+        return oldStructure;
+    }
+
+    // If neither exists, return undefined
+    return undefined;
 })
 
 // Map moon names to their imported images

@@ -161,13 +161,15 @@ export const useMoonStore = defineStore("moon", {
       lat: 52.3676,
       lon: 4.9041,
     } as Coordinates,
-    cityName: "Amsterdam"
+    cityName: "Amsterdam",
+    dataStructureWarnings: [] as string[]
   }),
 
   actions: {
     async fetchMoonData() {
       this.loading = true;
       this.error = null;
+      this.dataStructureWarnings = [];
 
       try {
         const config = useRuntimeConfig();
@@ -202,14 +204,38 @@ export const useMoonStore = defineStore("moon", {
           throw new Error(`Failed to parse API response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
         }
 
-        if (!data?.moon?.detailed?.upcoming_phases?.full_moon?.next) {
-          throw new Error('Invalid data structure received from API');
+        // Validate essential data structure
+        const requiredFields = [
+          'moon.phase',
+          'moon.phase_name',
+          'moon.illumination',
+          'moon.detailed.upcoming_phases.full_moon.next',
+          'sun.sunrise_timestamp',
+          'sun.sunset_timestamp'
+        ];
+
+        const missingFields = requiredFields.filter(field => {
+          const value = field.split('.').reduce((obj, key) => obj?.[key], data);
+          return value === undefined;
+        });
+
+        if (missingFields.length > 0) {
+          console.warn('API response missing required fields:', missingFields);
+          this.dataStructureWarnings.push(`Missing required fields: ${missingFields.join(', ')}`);
         }
 
+        // Log any unexpected structure changes
+        if (data.moon_phases) {
+          console.warn('API response contains deprecated moon_phases structure');
+          this.dataStructureWarnings.push('API response contains deprecated moon_phases structure');
+        }
+
+        // Set the data even if some fields are missing
         this.moonData = data;
       } catch (error) {
         this.error = error instanceof Error ? error.message : 'Unknown error occurred';
-        throw error;
+        console.error('Error fetching moon data:', error);
+        // Don't throw the error, just log it and continue
       } finally {
         this.loading = false;
       }
