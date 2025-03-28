@@ -12,6 +12,7 @@
             <LayoutLoadingSpinner v-else-if="moonStore.loading" />
 
             <LayoutMainContent v-else-if="moonStore.moonData">
+                <WidgetsNextFullMoon title="Next Full Moon" />
                 <WidgetsMoonDistance title="Moon Distance from Earth" />
                 <WidgetsLunarCycle title="Current Lunar Cycle" />
                 <WidgetsMoonSign title="Current Moon Sign" />
