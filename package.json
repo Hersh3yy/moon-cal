@@ -2,9 +2,6 @@
   "name": "nuxt-app",
   "private": true,
   "type": "module",
-  "engines": {
-    "node": ">=20.0.0"
-  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -23,8 +20,8 @@
     "graphql-request": "^7.1.2",
     "nuxt": "^3.14.1592",
     "pinia": "^3.x.x",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue": "latest",
+    "vue-router": "latest"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
