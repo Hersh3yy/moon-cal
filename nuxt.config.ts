@@ -54,16 +54,21 @@ export default defineNuxtConfig({
     }
   },
   build: {
-    transpile: [
-      "@headlessui/vue",
-      "@heroicons/vue",
-    ]
+    transpile: ['@nuxtjs/apollo'],
   },
-  modules: ["@pinia/nuxt", "@nuxtjs/apollo"],
+  modules: [
+    '@nuxtjs/apollo',
+    '@pinia/nuxt',
+    '@nuxtjs/robots',
+    '@nuxtjs/sitemap'
+  ],
   apollo: {
     clients: {
       default: {
-        httpEndpoint: 'https://eu-west-2.cdn.hygraph.com/content/cm60s84ew02la07v0ryt7qagq/master'
+        httpEndpoint: process.env.GRAPHQL_ENDPOINT || 'https://api.example.com/graphql',
+        httpLinkOptions: {
+          credentials: 'same-origin'
+        }
       }
     }
   },
@@ -73,27 +78,18 @@ export default defineNuxtConfig({
       geocodeApiKey: process.env.NUXT_PUBLIC_GEOCODE_API_KEY
     }
   },
-  // Add Nitro configuration for prerendering and improved SSR
   nitro: {
     prerender: {
-      crawlLinks: true,
-      routes: ['/', '/blog']
-    },
-    routeRules: {
-      // Specific rules to prevent 500 errors
-      '/blog/**': {
-        swr: 60 * 60 // Cache for 1 hour
-      }
+      ignore: ['/blog']
     }
   },
   routeRules: {
-    // Apply global route rules
-    '/blog': { swr: 60 * 60 * 24 }, // Cache blog index for 24 hours
-    '/blog/**': { swr: 60 * 60 * 12 } // Cache blog posts for 12 hours
+    '/blog': { swr: 60 * 60 * 24 },
+    '/blog/**': { swr: 60 * 60 * 12 }
   },
   experimental: {
     payloadExtraction: true,
     renderJsonPayloads: true
   },
-  ssr: true,
+  ssr: false,
 })

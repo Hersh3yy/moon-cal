@@ -59,12 +59,29 @@ const query = gql`
 `
 
 // Data fetching with Apollo
-const { data, pending, error } = await useAsyncQuery(query)
+const { data, pending, error } = await useAsyncQuery(query, {
+  // Add error handling for build time
+  onError: (error) => {
+    console.error('GraphQL Error:', error)
+    // Return empty data during build
+    if (process.server) {
+      return { posts: [] }
+    }
+  }
+})
 
-// Computed posts
+// Computed posts with better error handling
 const posts = computed(() => {
-  if (pending.value) return []
-  if (error.value) return []
-  return data.value?.posts || []
+  try {
+    if (pending.value) return []
+    if (error.value) {
+      console.error('Error fetching posts:', error.value)
+      return []
+    }
+    return data.value?.posts || []
+  } catch (e) {
+    console.error('Error processing posts:', e)
+    return []
+  }
 })
 </script>
