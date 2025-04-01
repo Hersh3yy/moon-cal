@@ -2,27 +2,30 @@
   <ClientOnly>
     <div class="relative w-full h-full rounded-full overflow-hidden bg-gray-900 moon-animate">
       <svg viewBox="0 0 100 100" class="w-full h-full">
-        <!-- Moon base (dark side) -->
-        <circle cx="50" cy="50" r="50" fill="#1a1a1a" />
-        
-        <!-- Moon illuminated part -->
         <defs>
-          <mask id="moonMask">
-            <!-- Dark side (black) -->
-            <circle cx="50" cy="50" r="50" fill="black" />
-            <!-- Illuminated part (white) -->
-            <path :d="getIlluminationPath" fill="white" />
+          <!-- Create a semi-transparent black color for the shadow -->
+          <linearGradient id="shadowGradient">
+            <stop offset="0%" stop-color="rgba(0,0,0,0.9)" />
+          </linearGradient>
+          
+          <mask id="moon-phase-mask">
+            <!-- Base white background -->
+            <rect x="0" y="0" width="100" height="100" fill="white" />
+            <!-- Semi-transparent dark mask for the shadow -->
+            <path :d="getMoonPhaseMask" fill="black" opacity="0.9" />
           </mask>
         </defs>
-        
-        <!-- Illuminated moon surface -->
-        <circle 
-          cx="50" 
-          cy="50" 
-          r="50" 
-          fill="#ffffff" 
-          mask="url(#moonMask)"
-        />
+
+        <!-- Moon surface with mask -->
+        <g :style="{ transform: `rotate(${moonRotation}deg)`, transformOrigin: 'center' }">
+          <image 
+            href="/images/moon-phase-images/full-moon.png" 
+            width="100" 
+            height="100"
+            preserveAspectRatio="xMidYMid slice"
+            mask="url(#moon-phase-mask)"
+          />
+        </g>
       </svg>
     </div>
     <template #fallback>
@@ -40,38 +43,50 @@ import { useMoonStore } from '@/stores/moon'
 const moonStore = useMoonStore()
 const moonData = computed(() => moonStore.moonData)
 
-// Get illumination percentage from detailed data or fallback to basic data
-const illuminationPercentage = computed(() => {
-  if (!moonData.value) return 0
-  
-  // Try to get detailed percentage first
-  const detailedPercentage = moonData.value.moon?.detailed?.illumination_details?.percentage
-  if (detailedPercentage !== undefined) return detailedPercentage
-  
-  // Fallback to basic illumination string
-  const basicIllumination = moonData.value.moon?.illumination
-  if (!basicIllumination) return 0
-  
-  // Convert "3%" to 3
-  return parseFloat(basicIllumination.replace('%', ''))
+// Calculate moon rotation based on parallactic angle
+const moonRotation = computed(() => {
+  if (!moonData.value?.moon?.detailed?.position?.parallactic_angle) return 0
+  return moonData.value.moon.detailed.position.parallactic_angle
 })
 
-// Calculate the SVG path for the illuminated part
-const getIlluminationPath = computed(() => {
-  const percentage = illuminationPercentage.value
-  if (percentage <= 0) return ''
-  if (percentage >= 100) return 'M 0 50 A 50 50 0 1 1 100 50 A 50 50 0 1 1 0 50'
+// Calculate the mask path for the current phase
+const getMoonPhaseMask = computed(() => {
+  if (!moonData.value) return ''
   
-  // Calculate the intersection points of the illumination line
-  const angle = (percentage / 100) * Math.PI
-  const x1 = 50 + 50 * Math.cos(angle)
-  const y1 = 50 + 50 * Math.sin(angle)
-  const x2 = 50 + 50 * Math.cos(-angle)
-  const y2 = 50 + 50 * Math.sin(-angle)
+  const phase = moonData.value.moon.phase // 0 to 1
+  const isWaxing = moonData.value.moon.stage === 'waxing'
   
-  // Create the path
-  const largeArcFlag = percentage > 50 ? 1 : 0
-  return `M ${x1} ${y1} A 50 50 0 ${largeArcFlag} 1 ${x2} ${y2} A 50 50 0 ${largeArcFlag} 1 ${x1} ${y1}`
+  // For a completely dark or full moon
+  if (phase <= 0) return 'M 0 0 H 100 V 100 H 0 Z'  // Full black mask
+  if (phase >= 1) return ''  // No mask
+  
+  const centerX = 50
+  const centerY = 50
+  const radius = 50
+  
+  // Calculate the terminator curve
+  const angle = phase * Math.PI
+  const curveX = centerX + radius * Math.cos(angle)
+  
+  // For waxing moon (illuminated on right)
+  if (isWaxing) {
+    return `
+      M ${curveX} 0
+      A ${radius} ${radius} 0 0 0 ${curveX} 100
+      L 0 100
+      L 0 0
+      Z
+    `.trim()
+  }
+  
+  // For waning moon (illuminated on left)
+  return `
+    M ${curveX} 0
+    A ${radius} ${radius} 0 0 1 ${curveX} 100
+    L 100 100
+    L 100 0
+    Z
+  `.trim()
 })
 </script>
 
