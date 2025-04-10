@@ -1,28 +1,21 @@
 <template>
   <ClientOnly>
-    <div class="relative w-full h-full rounded-full overflow-hidden bg-gray-900 moon-animate">
+    <div class="relative w-full h-full rounded-full overflow-hidden bg-gray-900 moon-animate
+                shadow-[0_0_50px_rgba(255,255,255,0.2)]
+                transition-transform duration-700 ease-in-out transform hover:scale-105">
       <svg viewBox="0 0 100 100" class="w-full h-full">
-        <!-- Moon base (dark side) -->
-        <circle cx="50" cy="50" r="50" fill="#1a1a1a" />
-        
-        <!-- Moon illuminated part -->
         <defs>
-          <mask id="moonMask">
-            <!-- Dark side (black) -->
-            <circle cx="50" cy="50" r="50" fill="black" />
-            <!-- Illuminated part (white) -->
-            <path :d="getIlluminationPath" fill="white" />
+          <mask id="moon-phase-mask">
+            <rect x="0" y="0" width="100" height="100" fill="white" />
+            <path :d="phaseMaskPath" fill="black" />
           </mask>
         </defs>
-        
-        <!-- Illuminated moon surface -->
-        <circle 
-          cx="50" 
-          cy="50" 
-          r="50" 
-          fill="#ffffff" 
-          mask="url(#moonMask)"
-        />
+
+        <!-- Full moon image with mask and rotation -->
+        <g :style="{ transform: `rotate(${moonRotation}deg)`, transformOrigin: 'center' }">
+          <image href="/images/moon-phase-images/full-moon.png" width="100" height="100"
+            preserveAspectRatio="xMidYMid slice" mask="url(#moon-phase-mask)" />
+        </g>
       </svg>
     </div>
     <template #fallback>
@@ -36,42 +29,36 @@
 <script setup>
 import { computed } from 'vue'
 import { useMoonStore } from '@/stores/moon'
+import { useMoonImage } from '@/composables/useMoonImage'
 
 const moonStore = useMoonStore()
+const { getMoonPhaseMask, getMoonCycleInfo } = useMoonImage()
+
 const moonData = computed(() => moonStore.moonData)
 
-// Get illumination percentage from detailed data or fallback to basic data
-const illuminationPercentage = computed(() => {
-  if (!moonData.value) return 0
-  
-  // Try to get detailed percentage first
-  const detailedPercentage = moonData.value.moon?.detailed?.illumination_details?.percentage
-  if (detailedPercentage !== undefined) return detailedPercentage
-  
-  // Fallback to basic illumination string
-  const basicIllumination = moonData.value.moon?.illumination
-  if (!basicIllumination) return 0
-  
-  // Convert "3%" to 3
-  return parseFloat(basicIllumination.replace('%', ''))
+// Calculate the mask path for the current phase
+const phaseMaskPath = computed(() => {
+  if (!moonData.value) return ''
+  return getMoonPhaseMask(
+    moonData.value.moon.phase,
+    moonData.value.moon.illumination,
+    moonData.value.moon.stage
+  )
 })
 
-// Calculate the SVG path for the illuminated part
-const getIlluminationPath = computed(() => {
-  const percentage = illuminationPercentage.value
-  if (percentage <= 0) return ''
-  if (percentage >= 100) return 'M 0 50 A 50 50 0 1 1 100 50 A 50 50 0 1 1 0 50'
-  
-  // Calculate the intersection points of the illumination line
-  const angle = (percentage / 100) * Math.PI
-  const x1 = 50 + 50 * Math.cos(angle)
-  const y1 = 50 + 50 * Math.sin(angle)
-  const x2 = 50 + 50 * Math.cos(-angle)
-  const y2 = 50 + 50 * Math.sin(-angle)
-  
-  // Create the path
-  const largeArcFlag = percentage > 50 ? 1 : 0
-  return `M ${x1} ${y1} A 50 50 0 ${largeArcFlag} 1 ${x2} ${y2} A 50 50 0 ${largeArcFlag} 1 ${x1} ${y1}`
+// Calculate moon rotation based on parallactic angle
+const moonRotation = computed(() => {
+  if (!moonData.value?.moon?.detailed?.position?.parallactic_angle) return 0
+  return moonData.value.moon.detailed.position.parallactic_angle
+})
+
+// Get additional cycle information
+const cycleInfo = computed(() => {
+  if (!moonData.value) return {
+    sidereal: { effect: '' },
+    tropical: { effect: '' }
+  }
+  return getMoonCycleInfo(moonData.value)
 })
 </script>
 
@@ -81,8 +68,8 @@ const getIlluminationPath = computed(() => {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
