@@ -17,6 +17,14 @@
 
       <h1 class="text-4xl font-bold mb-4">{{ post.title }}</h1>
 
+      <!-- Display tags if available -->
+      <div v-if="post.tags && post.tags.length > 0" class="flex flex-wrap gap-2 mb-4">
+        <span v-for="tag in post.tags" :key="tag" 
+          class="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+          {{ tag }}
+        </span>
+      </div>
+
       <div class="text-gray-600 mb-8">
         {{ formatDate(post.date) }}
         <span v-if="post.author?.name" class="ml-2">
@@ -29,6 +37,27 @@
         <div v-if="contentHtml" v-html="contentHtml"></div>
         <p v-else-if="post.excerpt">{{ post.excerpt }}</p>
         <p v-else>Content unavailable</p>
+      </div>
+
+      <!-- Additional images gallery if available -->
+      <div v-if="post.images && post.images.length > 0" class="my-8">
+        <h2 class="text-2xl font-semibold mb-4">Gallery</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <img v-for="image in post.images" :key="image.id" :src="image.url" :alt="post.title"
+            class="rounded-lg shadow-md w-full h-auto">
+        </div>
+      </div>
+
+      <!-- References if available -->
+      <div v-if="post.referenceUrls && post.referenceUrls.length > 0" class="mt-8 p-4 bg-gray-50 rounded-lg">
+        <h3 class="text-xl font-semibold mb-2">References</h3>
+        <ul class="list-disc pl-5">
+          <li v-for="(url, index) in post.referenceUrls" :key="index" class="mb-1">
+            <a :href="url" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-600 break-words">
+              {{ url }}
+            </a>
+          </li>
+        </ul>
       </div>
 
       <div class="mt-8">
@@ -54,7 +83,7 @@ import { gql } from 'graphql-tag'
 
 // Define page meta for improved SSR handling
 definePageMeta({
-  ssr: false, // Disable SSR for this page
+  ssr: true, // Enable SSR for better SEO
   keepalive: true
 })
 
@@ -62,11 +91,52 @@ definePageMeta({
 const route = useRoute()
 const slug = computed(() => route.params.slug)
 
+// Define post interface
+interface BlogPost {
+  title: string
+  slug: string
+  date: string
+  excerpt?: string
+  tags?: string[]
+  referenceUrls?: string[]
+  content?: {
+    json: any
+  }
+  coverImage?: {
+    url: string
+  }
+  author?: {
+    name: string
+  }
+  images?: Array<{
+    id: string
+    url: string
+  }>
+}
+
 // State variables
 const loading = ref(true)
 const error = ref<Error | null>(null)
 const contentHtml = ref('')
-const post = ref<any>(null)
+const post = ref<BlogPost | null>(null)
+
+// Set dynamic SEO meta tags when post is loaded
+watch(() => post.value, (newPost) => {
+  if (newPost) {
+    useSeoMeta({
+      title: () => `${newPost.title} | Lunatrack Blog`,
+      description: () => newPost.excerpt || 'Read this interesting article on Lunatrack',
+      ogTitle: () => `${newPost.title} | Lunatrack Blog`,
+      ogDescription: () => newPost.excerpt || 'Read this interesting article on Lunatrack',
+      ogImage: () => newPost.coverImage?.url || '/images/moon-phase-images/full-moon.png',
+      ogUrl: () => `https://lunatrack.info/blog/${newPost.slug}`,
+      twitterTitle: () => `${newPost.title} | Lunatrack Blog`,
+      twitterDescription: () => newPost.excerpt || 'Read this interesting article on Lunatrack',
+      twitterImage: () => newPost.coverImage?.url || '/images/moon-phase-images/full-moon.png',
+      twitterCard: 'summary_large_image',
+    })
+  }
+}, { immediate: true })
 
 // Create a function to load the post
 const loadPost = async () => {
@@ -82,6 +152,8 @@ const loadPost = async () => {
           slug
           date
           excerpt
+          tags
+          referenceUrls
           content {
             json
           }
@@ -91,11 +163,19 @@ const loadPost = async () => {
           author {
             name
           }
+          images {
+            id
+            url
+          }
         }
       }
     `
 
-    const { data, error: queryError } = await useAsyncQuery(query, { slug: slug.value })
+    interface PostQueryResult {
+      post?: BlogPost
+    }
+
+    const { data, error: queryError } = await useAsyncQuery<PostQueryResult>(query, { slug: slug.value })
 
     if (queryError.value) {
       throw queryError.value
@@ -217,6 +297,51 @@ watch(() => route.params.slug, (newSlug) => {
 onMounted(() => {
   loadPost()
 })
+
+// Generate JSON-LD structured data for the blog post
+const blogPostSchema = computed(() => {
+  if (!post.value) return null
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.value.title,
+    description: post.value.excerpt || '',
+    image: post.value.coverImage?.url || '',
+    datePublished: post.value.date,
+    dateModified: post.value.date,
+    author: post.value.author ? {
+      '@type': 'Person',
+      name: post.value.author.name || 'Lunatrack Team'
+    } : null,
+    publisher: {
+      '@type': 'Organization',
+      name: 'Lunatrack',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://lunatrack.info/images/logo.png'
+      }
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `https://lunatrack.info/blog/${post.value.slug}`
+    }
+  }
+})
+
+// Add structured data to head
+watch(() => blogPostSchema.value, (newSchema) => {
+  if (newSchema) {
+    useHead({
+      script: [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify(newSchema)
+        }
+      ]
+    })
+  }
+}, { immediate: true })
 </script>
 
 <style>

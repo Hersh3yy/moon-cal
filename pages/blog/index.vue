@@ -20,10 +20,25 @@
           class="w-full h-48 object-cover">
         <div class="p-4">
           <h2 class="text-xl font-semibold mb-2 text-gray-800">{{ post.title }}</h2>
+          
+          <!-- Display tags if available -->
+          <div v-if="post.tags && post.tags.length > 0" class="flex flex-wrap gap-2 mb-3">
+            <span v-for="tag in post.tags" :key="tag" 
+              class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+              {{ tag }}
+            </span>
+          </div>
+          
           <p class="text-gray-600 mb-4">{{ post.excerpt || 'Read more...' }}</p>
-          <NuxtLink :to="'/blog/' + post.slug" class="text-blue-500 hover:text-blue-600">
-            Read more →
-          </NuxtLink>
+          
+          <div class="flex justify-between items-center">
+            <NuxtLink :to="'/blog/' + post.slug" class="text-blue-500 hover:text-blue-600">
+              Read more →
+            </NuxtLink>
+            <span v-if="post.date" class="text-sm text-gray-500">
+              {{ formatDate(post.date) }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -36,12 +51,75 @@ import { gql } from 'graphql-tag'
 
 // Define page meta for improved SSR handling
 definePageMeta({
-  ssr: false, // Disable SSR for this page
+  ssr: true, // Enable SSR for better SEO
   keepalive: true
+})
+
+// Add SEO meta tags for blog index page
+useSeoMeta({
+  title: 'Moon Blog | Lunatrack',
+  description: 'Explore our collection of articles about the moon, lunar phases, and celestial events',
+  ogTitle: 'Moon Blog | Lunatrack',
+  ogDescription: 'Explore our collection of articles about the moon, lunar phases, and celestial events',
+  ogImage: '/images/moon-phase-images/full-moon.png',
+  ogUrl: 'https://lunatrack.info/blog',
+  twitterTitle: 'Moon Blog | Lunatrack',
+  twitterDescription: 'Explore our collection of articles about the moon, lunar phases, and celestial events',
+  twitterImage: '/images/moon-phase-images/full-moon.png',
+  twitterCard: 'summary_large_image',
+})
+
+// Add JSON-LD structured data for blog index
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Blog',
+        name: 'Moon Blog | Lunatrack',
+        description: 'Explore our collection of articles about the moon, lunar phases, and celestial events',
+        url: 'https://lunatrack.info/blog',
+        publisher: {
+          '@type': 'Organization',
+          name: 'Lunatrack',
+          logo: {
+            '@type': 'ImageObject',
+            url: 'https://lunatrack.info/images/logo.png'
+          }
+        }
+      })
+    }
+  ]
 })
 
 // Get the Apollo configuration
 const config = useRuntimeConfig()
+
+// Define blog post interface 
+interface BlogPost {
+  title: string
+  slug: string
+  date: string
+  excerpt?: string
+  tags?: string[]
+  referenceUrls?: string[]
+  coverImage?: {
+    url: string
+  }
+  author?: {
+    name: string
+  }
+  images?: Array<{
+    id: string
+    url: string
+  }>
+}
+
+// Define query result interface
+interface PostsQueryResult {
+  posts?: BlogPost[]
+}
 
 // Define the query for fetching posts summary
 const query = gql`
@@ -51,24 +129,30 @@ const query = gql`
       slug
       date
       excerpt
+      tags
+      referenceUrls
       coverImage {
         url
       }
       author {
         name
       }
+      images {
+        id
+        url
+      }
     }
   }
 `
 
 // Data fetching with Apollo and better error handling
-const { data, pending, error } = await useAsyncQuery(query, {
+const { data, pending, error } = await useAsyncQuery<PostsQueryResult>(query, {
   clientId: 'default',
   context: {
     errorPolicy: 'all'
   },
-  onError: (error) => {
-    console.error('GraphQL Error:', error)
+  onError: (err: any) => {
+    console.error('GraphQL Error:', err)
     // Return empty data during build
     if (process.server) {
       return { posts: [] }
@@ -90,4 +174,19 @@ const posts = computed(() => {
     return []
   }
 })
+
+// Helper function to format date
+function formatDate(dateString: string): string {
+  if (!dateString) return ''
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  } catch (e) {
+    return dateString
+  }
+}
 </script>
