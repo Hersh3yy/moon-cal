@@ -49,44 +49,43 @@ const moonRotation = computed(() => {
   return moonData.value.moon.detailed.position.parallactic_angle
 })
 
-// Calculate the mask path for the current phase
+// The shadow-mask path for the current phase.
+//
+// A moon image is the full-moon sprite with a dark shadow laid over the
+// un-lit part. The boundary between lit and dark (the terminator) is a
+// half-ellipse whose horizontal radius tracks the illuminated fraction:
+// wide at new/full, zero at the quarters (a straight line). The lit side is
+// chosen by `stage` (waxing = right, waning = left), matching the app's
+// convention. phase runs 0 (new) → 0.5 (full) → 1 (new).
 const getMoonPhaseMask = computed(() => {
-  if (!moonData.value) return ''
-  
-  const phase = moonData.value.moon.phase // 0 to 1
-  const isWaxing = moonData.value.moon.stage === 'waxing'
-  
-  // For a completely dark or full moon
-  if (phase <= 0) return 'M 0 0 H 100 V 100 H 0 Z'  // Full black mask
-  if (phase >= 1) return ''  // No mask
-  
-  const centerX = 50
-  const centerY = 50
-  const radius = 50
-  
-  // Calculate the terminator curve
-  const angle = phase * Math.PI
-  const curveX = centerX + radius * Math.cos(angle)
-  
-  // For waxing moon (illuminated on right)
+  const m = moonData.value?.moon
+  if (!m || typeof m.phase !== 'number') return ''
+
+  const phase = m.phase
+  const R = 50
+  const cx = 50
+  const EPS = 0.01
+
+  // New moon (phase near 0 OR near 1) → the whole disc is dark.
+  // Full moon (phase near 0.5) → no shadow at all.
+  if (phase <= EPS || phase >= 1 - EPS) return 'M 0 0 H 100 V 100 H 0 Z'
+  if (Math.abs(phase - 0.5) < EPS) return ''
+
+  const isWaxing = (m.stage || '').toLowerCase() === 'waxing'
+  const angle = phase * 2 * Math.PI       // 0..2π
+  const cosA = Math.cos(angle)
+  const rx = Math.abs(cosA) * R            // terminator x-radius (0 at the quarters)
+  const crescent = cosA > 0                // shadow covers more than half the disc
+
+  // Path: start at the top, arc down the dark limb, arc back up the terminator.
   if (isWaxing) {
-    return `
-      M ${curveX} 0
-      A ${radius} ${radius} 0 0 0 ${curveX} 100
-      L 0 100
-      L 0 0
-      Z
-    `.trim()
+    // Lit on the right, so the shadow is on the LEFT.
+    const termSweep = crescent ? 1 : 0
+    return `M ${cx} 0 A ${R} ${R} 0 0 0 ${cx} 100 A ${rx} ${R} 0 0 ${termSweep} ${cx} 0 Z`
   }
-  
-  // For waning moon (illuminated on left)
-  return `
-    M ${curveX} 0
-    A ${radius} ${radius} 0 0 1 ${curveX} 100
-    L 100 100
-    L 100 0
-    Z
-  `.trim()
+  // Waning: lit on the left, shadow on the RIGHT.
+  const termSweep = crescent ? 0 : 1
+  return `M ${cx} 0 A ${R} ${R} 0 0 1 ${cx} 100 A ${rx} ${R} 0 0 ${termSweep} ${cx} 0 Z`
 })
 </script>
 

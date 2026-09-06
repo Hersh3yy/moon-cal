@@ -191,31 +191,11 @@ export const useMoonStore = defineStore("moon", {
           throw new Error(`API Error: ${response.status}`);
         }
 
-        const rawText = await response.text();
-        console.log('Raw API response:', rawText.substring(0, 200) + '...') // Log first 200 chars
-        
-        const lastJsonBraceIndex = rawText.lastIndexOf('}}');
-        
-        if (lastJsonBraceIndex === -1) {
-          throw new Error('Could not find valid JSON structure in response');
-        }
-
-        const cleanedJson = rawText.substring(0, lastJsonBraceIndex + 2);
-        let data;
-        
-        try {
-          data = JSON.parse(cleanedJson);
-          console.log('Parsed API response structure:', {
-            hasMoon: !!data.moon,
-            hasDetailed: !!data.moon?.detailed,
-            phase: data.moon?.phase_name,
-            illumination: data.moon?.illumination,
-            detailedPercentage: data.moon?.detailed?.illumination_details?.percentage
-          })
-        } catch (parseError: unknown) {
-          console.error('JSON parse error:', parseError)
-          throw new Error(`Failed to parse API response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
-        }
+        // Parse the response as JSON directly. (This used to slice the body at
+        // the last "}}" and JSON.parse the substring — a fragile hack that would
+        // silently mangle any response whose shape differed. `response.json()`
+        // is correct and throws loudly on genuinely malformed JSON.)
+        const data = await response.json();
 
         // Validate essential data structure
         const requiredFields = [

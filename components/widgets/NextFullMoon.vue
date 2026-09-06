@@ -14,10 +14,7 @@
                         class="text-sm text-blue-400 hover:text-blue-300 mt-1">
                         Learn more about {{ nextFullMoon?.name }}
                     </a>
-                    <p class="text-sm opacity-75 mt-1">
-                        {{ new Date(nextFullMoon?.timestamp ?
-                            nextFullMoon?.timestamp * 1000 : 0).toLocaleDateString() }}
-                    </p>
+                    <p v-if="fullMoonDate" class="text-sm opacity-75 mt-1">{{ fullMoonDate }}</p>
                 </div>
             </div>
         </div>
@@ -62,6 +59,16 @@ const nextFullMoon = computed(() => {
 
     // If neither exists, return undefined
     return undefined;
+})
+
+// Formatted full-moon date. Guards the missing case (no more "1/1/1970" from a
+// `new Date(0)` fallback) and renders a readable date instead of a raw locale string.
+const fullMoonDate = computed(() => {
+    const ts = nextFullMoon.value?.timestamp
+    if (!ts) return ''
+    return new Date(ts * 1000).toLocaleDateString(undefined, {
+        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+    })
 })
 
 // Map moon names to their imported images

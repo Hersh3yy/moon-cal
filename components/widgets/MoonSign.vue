@@ -12,7 +12,8 @@
                     </span>
                 </div>
                 <p class="text-sm opacity-75 mt-1">{{ getZodiacDescription(moonData?.moon?.zodiac?.moon_sign) }}</p>
-                <p class="text-xs opacity-50 mt-1">{{ getZodiacDateRange(moonData?.moon?.zodiac?.moon_sign) }}</p>
+                <!-- No date range here: the Moon transits a sign in ~2.3 days, so a
+                     month-long solar range (as SunSign shows) would be meaningless. -->
             </div>
         </div>
     </UiBaseCard>
@@ -95,21 +96,6 @@ const zodiacSymbols = {
     'Pisces': '♓'
 }
 
-const zodiacDateRanges = {
-    'Aries': 'Mar 21 - Apr 19',
-    'Taurus': 'Apr 20 - May 20',
-    'Gemini': 'May 21 - Jun 20',
-    'Cancer': 'Jun 21 - Jul 22',
-    'Leo': 'Jul 23 - Aug 22',
-    'Virgo': 'Aug 23 - Sep 22',
-    'Libra': 'Sep 23 - Oct 22',
-    'Scorpio': 'Oct 23 - Nov 21',
-    'Sagittarius': 'Nov 22 - Dec 21',
-    'Capricorn': 'Dec 22 - Jan 19',
-    'Aquarius': 'Jan 20 - Feb 18',
-    'Pisces': 'Feb 19 - Mar 20'
-}
-
 const getZodiacDescription = (sign: string | undefined) => {
     if (!sign) return ''
     return zodiacDescriptions[sign as keyof typeof zodiacDescriptions] || ''
@@ -118,10 +104,5 @@ const getZodiacDescription = (sign: string | undefined) => {
 const getZodiacSymbol = (sign: string | undefined) => {
     if (!sign) return ''
     return zodiacSymbols[sign as keyof typeof zodiacSymbols] || ''
-}
-
-const getZodiacDateRange = (sign: string | undefined) => {
-    if (!sign) return ''
-    return zodiacDateRanges[sign as keyof typeof zodiacDateRanges] || ''
 }
 </script>
