@@ -52,6 +52,28 @@ Grounded by reading the code and calling the API. Worst first; the top three are
 - **Blog:** Apollo/GraphQL to a hardcoded Hygraph endpoint (`nuxt.config.ts:68`); `runtimeConfig.public.graphqlEndpoint` is dead (unused).
 - **Key insight for fixing:** the API already returns phase value, illumination, sign, and timestamps — the fixes are all "render the field correctly", not "compute astronomy". The one place to consider real local math is the moon *image* (a proper illuminated-fraction terminator), if you want it accurate rather than API-driven.
 
+## Hard parts
+
+<!-- These are what you'll need to understand to fix the display bugs — the mechanics, not code I wrote. -->
+
+### Drawing a moon at the right phase
+
+🔭 **What it does** — A moon-phase image is a full-moon sprite with a shadow mask laid over it. The terminator (the light/dark boundary) is a half-ellipse whose width tracks the illuminated fraction: at new it covers the whole disc, at full it's gone, at quarter it's a straight line down the middle. The current code uses a fixed-radius arc that doesn't scale with illumination, and at `phase → 1` (back to new) it returns no mask — so it paints a *bright* moon when it should be dark.
+
+⚖️ **Why this way** — The honest fix is to build the terminator from the illuminated fraction (an ellipse whose x-radius follows `cos` of the phase angle, the sign flipping at the half-cycle for waxing vs waning), or to sidestep the geometry with a set of phase-indexed images. The API already returns illumination %, so you never need to compute the phase yourself.
+
+🗣️ **Say it to a senior** — "The moon image is a shadow mask over a full-moon sprite; the terminator is an ellipse whose width tracks the illuminated fraction, and ours neither scales with illumination nor handles the new-moon wrap."
+
+---
+
+### Why a date shows the wrong day
+
+🔭 **What it does** — `new Date('2026-09-06')` parses a date-only string as **UTC midnight**; `toLocaleDateString()` then renders it in the *viewer's* timezone, so anyone west of Greenwich sees the day before. And `new Date(0)` — the missing-timestamp fallback — is 1970-01-01, which is how "1/1/1970" lands on screen.
+
+⚖️ **Why this way** — Parse date-only strings as local (`new Date(y, m-1, d)`), guard the missing case instead of defaulting to `0`, and format in the queried location's timezone if you want its day rather than the browser's.
+
+🗣️ **Say it to a senior** — "Date-only strings parse as UTC midnight and render in the viewer's zone, so they drift a day; I'd parse them as local and never fall back to epoch 0."
+
 ## Roadmap — near future
 
 - [ ] Fix the moon image: correct the end-of-cycle inversion and draw the terminator from illumination %, or swap to a phase-indexed image set (the README's "accurate moon images for each day") <!-- id:n1 cu:123kjkdhp64 -->
