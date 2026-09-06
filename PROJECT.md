@@ -10,8 +10,8 @@
 
 **What it is** · A moon-phase app for moon nerds: today's phase, illumination, age, moon/sun sign, rise/set, next full/new moon and eclipses, for a chosen location. Plus a blog.
 **Stack** · Nuxt 3 (SPA, `ssr: false`) · Vue 3 · Pinia · Tailwind · Apollo/GraphQL (Hygraph blog) · RapidAPI moon-phase
-**Status** · 🟡 rough — the concept works and the moon **API data is good**; the bad data you see is the **display layer** (wrong moon image, moon-sign shown with sun-sign date ranges, raw/timezone-wrong times). No local astronomy, so nothing is unfixable.
-**Repo** · `koala/moon-cal` · on `main` (make a renewal branch before any code fix; merge to `main` only when sure)
+**Status** · 🟢 improving — the display bugs are fixed on branch `renewal-fixes` (moon image geometry corrected + no more bright-when-new; moon sign no longer shows a sun-sign range; NextFullMoon date guarded; fetch uses `response.json()`; dead code deleted). `yarn build` green on Node 24. Not merged to `main`.
+**Repo** · `koala/moon-cal` · working on `renewal-fixes` (merge to `main` only when sure)
 **Hosting** · Nuxt SPA (Netlify-style)
 **ClickUp** · Lunatrack list `901508497689`
 **Last assessed** · 2026-09-06
@@ -76,24 +76,29 @@ Grounded by reading the code and calling the API. Worst first; the top three are
 
 ## Roadmap — near future
 
-- [ ] Fix the moon image: correct the end-of-cycle inversion and draw the terminator from illumination %, or swap to a phase-indexed image set (the README's "accurate moon images for each day") <!-- id:n1 cu:123kjkdhp64 -->
-- [ ] Fix MoonSign to stop showing sun-sign date ranges (drop the month span, or show the ~2-day moon transit) <!-- id:n2 cu:123kjkdhp65 -->
-- [ ] Format sun/moon rise-set times as local clock time in the selected location's timezone <!-- id:n3 cu:123kjkdhp66 -->
-- [ ] Fix date rendering: no 1970 fallback, parse date-only strings without the UTC off-by-one, show the location's day not the viewer's <!-- id:n4 cu:123kjkdhp67 -->
-- [ ] Replace the `lastIndexOf('}}')` truncation with `response.json()`; surface the missing-field warning instead of swallowing it <!-- id:n5 cu:123kjkdhp68 -->
+- [x] Fix the moon image: correct the end-of-cycle inversion and draw the terminator from illumination %, or swap to a phase-indexed image set (the README's "accurate moon images for each day") <!-- id:n1 cu:123kjkdhp64 -->
+- [x] Fix MoonSign to stop showing sun-sign date ranges (drop the month span, or show the ~2-day moon transit) <!-- id:n2 cu:123kjkdhp65 -->
+- [x] ~~Format sun/moon rise-set times~~ — **verified already correct**: the time widgets use the API's pre-formatted string fields (`"06:59"`, `"00:10"`), not the epoch fields. The audit over-flagged this; nothing to change. <!-- id:n3 cu:123kjkdhp66 -->
+- [x] Fix date rendering: no 1970 fallback, parse date-only strings without the UTC off-by-one, show the location's day not the viewer's <!-- id:n4 cu:123kjkdhp67 -->
+- [x] Replace the `lastIndexOf('}}')` truncation with `response.json()`; surface the missing-field warning instead of swallowing it <!-- id:n5 cu:123kjkdhp68 -->
 
 ## Roadmap — far future
 
-- [ ] Remove dead code: `stores/posts.ts`, `DebugInfo.vue`, `ModeToggle.vue` (or wire the Science/Astrology toggle), the duplicate `useMoonImage.ts`, the second header <!-- id:f1 cu:123kjkdhp69 -->
+- [x] Remove dead code: deleted `stores/posts.ts`, `DebugInfo.vue`, `ModeToggle.vue`, the duplicate `useMoonImage.ts` (all zero importers). The redundant second header (`layout/Header` vs `App/Header`) was left — it's layout tidy-up, not dead code; spin off if wanted. <!-- id:f1 cu:123kjkdhp69 -->
 - [ ] Sanitize blog `v-html` (XSS) <!-- id:f2 cu:123kjkdhp6a -->
 - [ ] Auto-detect location on first load (currently hard-defaults to Amsterdam) <!-- id:f3 cu:123kjkdhp6b -->
-- [ ] Document the required API keys in `.env.example` <!-- id:f4 cu:123kjkdhp6c -->
+- [x] Document the required API keys in `.env.example` <!-- id:f4 cu:123kjkdhp6c -->
 - [ ] Decide SPA vs SSR for blog SEO (global `ssr:false` defeats the per-page `ssr:true`) <!-- id:f5 cu:123kjkdhp6d -->
 - [ ] 3D moon render, favicon/title, i18n (README TODOs) <!-- id:f6 cu:123kjkdhp6e -->
 
 ---
 
 ## Diary
+
+### 2026-09-06 (later) — fixed it all (branch `renewal-fixes`)
+- Green-lit full fix pass, on a branch (not merged). Fixed: the **moon image** (terminator now scales with illumination; the end-of-cycle bright-instead-of-dark inversion is gone — verified numerically across the phase cycle); the **moon sign** no longer prints a month-long sun-sign range; **NextFullMoon** date is formatted and guarded (no "1/1/1970"); the store **fetch** uses `response.json()` instead of the `}}` truncation; deleted 4 dead files. `.env.example` documented. `yarn build` green on Node 24.
+- Grounded correction: re-called the live API and found the **time widgets were already correct** (they use the API's pre-formatted `"06:59"` strings, not the epoch fields) — the first audit over-flagged them. NextEclipse already guards its missing case.
+- Left as tasks (secondary): blog `v-html` XSS, first-load location auto-detect, SPA-vs-SSR for blog SEO, the redundant second header.
 
 ### 2026-09-06 — first cockpit + grounded audit
 - Audited the whole app and **called the live moon API** to check the "bad data" complaint. Finding: the API data is correct; the bad data is the display layer (moon image inversion, moon-sign showing sun-sign ranges, raw/timezone-wrong times/dates).
