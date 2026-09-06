@@ -54,20 +54,20 @@ Grounded by reading the code and calling the API. Worst first; the top three are
 
 ## Roadmap — near future
 
-- [ ] Fix the moon image: correct the end-of-cycle inversion and draw the terminator from illumination %, or swap to a phase-indexed image set (the README's "accurate moon images for each day") <!-- id:n1 -->
-- [ ] Fix MoonSign to stop showing sun-sign date ranges (drop the month span, or show the ~2-day moon transit) <!-- id:n2 -->
-- [ ] Format sun/moon rise-set times as local clock time in the selected location's timezone <!-- id:n3 -->
-- [ ] Fix date rendering: no 1970 fallback, parse date-only strings without the UTC off-by-one, show the location's day not the viewer's <!-- id:n4 -->
-- [ ] Replace the `lastIndexOf('}}')` truncation with `response.json()`; surface the missing-field warning instead of swallowing it <!-- id:n5 -->
+- [ ] Fix the moon image: correct the end-of-cycle inversion and draw the terminator from illumination %, or swap to a phase-indexed image set (the README's "accurate moon images for each day") <!-- id:n1 cu:123kjkdhp64 -->
+- [ ] Fix MoonSign to stop showing sun-sign date ranges (drop the month span, or show the ~2-day moon transit) <!-- id:n2 cu:123kjkdhp65 -->
+- [ ] Format sun/moon rise-set times as local clock time in the selected location's timezone <!-- id:n3 cu:123kjkdhp66 -->
+- [ ] Fix date rendering: no 1970 fallback, parse date-only strings without the UTC off-by-one, show the location's day not the viewer's <!-- id:n4 cu:123kjkdhp67 -->
+- [ ] Replace the `lastIndexOf('}}')` truncation with `response.json()`; surface the missing-field warning instead of swallowing it <!-- id:n5 cu:123kjkdhp68 -->
 
 ## Roadmap — far future
 
-- [ ] Remove dead code: `stores/posts.ts`, `DebugInfo.vue`, `ModeToggle.vue` (or wire the Science/Astrology toggle), the duplicate `useMoonImage.ts`, the second header <!-- id:f1 -->
-- [ ] Sanitize blog `v-html` (XSS) <!-- id:f2 -->
-- [ ] Auto-detect location on first load (currently hard-defaults to Amsterdam) <!-- id:f3 -->
-- [ ] Document the required API keys in `.env.example` <!-- id:f4 -->
-- [ ] Decide SPA vs SSR for blog SEO (global `ssr:false` defeats the per-page `ssr:true`) <!-- id:f5 -->
-- [ ] 3D moon render, favicon/title, i18n (README TODOs) <!-- id:f6 -->
+- [ ] Remove dead code: `stores/posts.ts`, `DebugInfo.vue`, `ModeToggle.vue` (or wire the Science/Astrology toggle), the duplicate `useMoonImage.ts`, the second header <!-- id:f1 cu:123kjkdhp69 -->
+- [ ] Sanitize blog `v-html` (XSS) <!-- id:f2 cu:123kjkdhp6a -->
+- [ ] Auto-detect location on first load (currently hard-defaults to Amsterdam) <!-- id:f3 cu:123kjkdhp6b -->
+- [ ] Document the required API keys in `.env.example` <!-- id:f4 cu:123kjkdhp6c -->
+- [ ] Decide SPA vs SSR for blog SEO (global `ssr:false` defeats the per-page `ssr:true`) <!-- id:f5 cu:123kjkdhp6d -->
+- [ ] 3D moon render, favicon/title, i18n (README TODOs) <!-- id:f6 cu:123kjkdhp6e -->
 
 ---
 
