@@ -72,6 +72,19 @@ export default defineNuxtConfig({
       }
     }
   },
+  site: {
+    url: 'https://lunatrack.info'
+  },
+  sitemap: {
+    strictNuxtContentPaths: true,
+    excludeAppSources: true,
+    urls: []
+  },
+  routeRules: {
+    '/blog': { swr: 60 * 60 * 24 },
+    '/blog/**': { swr: 60 * 60 * 12 },
+    '/robots.txt': { static: true }
+  },
   runtimeConfig: {
     public: {
       moonApiKey: process.env.NUXT_PUBLIC_MOON_API_KEY,
@@ -83,10 +96,6 @@ export default defineNuxtConfig({
     prerender: {
       ignore: ['/blog']
     }
-  },
-  routeRules: {
-    '/blog': { swr: 60 * 60 * 24 },
-    '/blog/**': { swr: 60 * 60 * 12 }
   },
   experimental: {
     payloadExtraction: true,
