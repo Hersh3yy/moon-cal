@@ -1,8 +1,9 @@
 # LUNATRACK — for moon nerds
 
 Today's moon, for where you are: phase and illumination, age, moon and sun sign, rise and set
-times, the next full moon and its name, and viewing tips — plus a blog about the moon and the
-people, animals and tides that live by it.
+times, the next full moon and its name, upcoming phases, distance, the next eclipses as seen
+from where you are, and viewing tips — plus a blog about the moon and the people, animals and
+tides that live by it.
 
 Live at **https://lunatrack.info**.
 
@@ -25,21 +26,26 @@ yarn preview
 
 | Variable | Service | Needed for |
 |---|---|---|
-| `NUXT_PUBLIC_MOON_API_KEY` | [moon-phase on RapidAPI](https://rapidapi.com/MoonAPIcom/api/moon-phase) | every moon and sun figure on the home page |
-| `NUXT_PUBLIC_GEOCODE_API_KEY` | [geocode.maps.co](https://geocode.maps.co) | turning a typed city into coordinates, and GPS coordinates into a city name |
+| `NUXT_MOON_API_KEY` | [moon-phase on RapidAPI](https://rapidapi.com/MoonAPIcom/api/moon-phase) | every moon and sun figure on the home page |
+| `NUXT_GEOCODE_API_KEY` | [geocode.maps.co](https://geocode.maps.co) | turning a typed city into coordinates, and GPS coordinates into a city name |
 
-The blog needs no key; posts come from a Hygraph project whose public endpoint is in `nuxt.config.ts`.
+Both keys stay on the server: the browser only talks to this site's own `/api/*` routes. The blog
+needs no key by default (Hygraph); set `NUXT_POSTS_SOURCE=vams` plus `NUXT_VAMS_API_KEY` to read
+it from VAMS instead. Eclipses are computed in the browser with
+[astronomy-engine](https://github.com/cosinekitty/astronomy).
 
 ## How it's built
 
-Nuxt 3 (single-page app) · Vue 3 · Pinia · Tailwind · Apollo/GraphQL for the blog · deployed on
-Netlify from `main`. One store (`stores/moon.ts`) fetches the moon data for the chosen location;
-the cards on the home page read from it. The moon image is a full-moon photo under an SVG shadow
-mask drawn from the phase.
+Nuxt 3 · Vue 3 · Pinia · Tailwind · deployed on Netlify from `main`. The home page is
+client-rendered (live data per visitor); the blog is prerendered at build time. Components follow
+atomic design (`components/atoms`, `molecules`, `organisms`). One store (`stores/moon.ts`) holds
+the moon data for the chosen location; `composables/useMoon.ts` exposes it as named values the
+cards read. The moon image is a full-moon photo under an SVG shadow mask drawn from the phase.
 
 For status, known issues, architecture and the roadmap, read [`PROJECT.md`](PROJECT.md).
 
 ## Credits
 
 Made by [Hiren Budhrani](https://hiren.ninja) and [Anna Veerman](https://stratessa.com/).
-Moon data by moon-phase (RapidAPI). Full-moon names follow the Old Farmer's Almanac tradition.
+Moon data by moon-phase (RapidAPI); eclipses by astronomy-engine. Full-moon names follow the
+Old Farmer's Almanac tradition.

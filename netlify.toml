@@ -1,0 +1,8 @@
+# Nuxt on Netlify: `nuxt build` with the Netlify preset — static pages in dist/,
+# server routes (/api/*) and non-prerendered pages as a Netlify function.
+[build]
+  command = "yarn build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

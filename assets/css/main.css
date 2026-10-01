@@ -1,52 +1,107 @@
-/* assets/css/app.css */
-@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;400;500;600&display=swap');
+/* Self-hosted fonts (no render-blocking Google Fonts request, no third-party call). */
+@import '@fontsource/audiowide/400.css';
+@import '@fontsource/poppins/300.css';
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom base font families */
 @layer base {
-  .font-audiowide {
-    font-family: 'Audiowide', cursive;
+  html {
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
 
-  .font-poppins {
-    font-family: 'Poppins', sans-serif;
+  body {
+    @apply bg-ink text-moon-100 font-sans antialiased;
+    overflow-x: hidden;
+  }
+
+  /* One visible focus style everywhere (keyboard users). */
+  :focus-visible {
+    @apply outline-none ring-2 ring-glow ring-offset-2 ring-offset-ink;
+  }
+
+  ::selection {
+    @apply bg-glow-300/40 text-moon-50;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-/* Component classes */
 @layer components {
-
-  .moon-card {
-    @apply overflow-hidden bg-black/50 backdrop-blur-sm rounded-lg p-4 w-full mb-4 border border-white/10;
-    min-height: 100px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  /* The glass card every widget sits in. */
+  .glass {
+    @apply rounded-card border border-line bg-surface shadow-card backdrop-blur-md;
   }
 
-  .moon-card-row {
-    @apply flex items-center justify-between flex-wrap gap-2;
+  .link {
+    @apply text-glow-300 underline decoration-glow-300/40 underline-offset-4 transition-colors hover:text-glow hover:decoration-glow;
   }
 
-  .moon-text-primary {
-    @apply text-white text-lg font-audiowide;
+  /* Blog typography on the dark ground. */
+  .prose-moon {
+    @apply text-moon-100 leading-relaxed;
   }
-
-  .moon-text-secondary {
-    @apply text-white text-sm font-poppins font-extralight min-w-0;
+  .prose-moon > * + * {
+    @apply mt-5;
   }
-
-  .moon-display-toggle {
-    @apply flex gap-2 mb-4;
+  .prose-moon h2 {
+    @apply mt-10 text-2xl font-semibold text-moon-50;
   }
-
-  .moon-toggle-btn {
-    @apply bg-zinc-400/10 rounded-md px-3 py-1 font-poppins;
+  .prose-moon h3 {
+    @apply mt-8 text-xl font-semibold text-moon-50;
   }
-
-  .moon-toggle-btn.active {
-    @apply bg-zinc-400/20;
+  .prose-moon h4 {
+    @apply mt-6 text-lg font-semibold text-moon-50;
+  }
+  .prose-moon p {
+    @apply text-base sm:text-[1.0625rem];
+  }
+  .prose-moon a {
+    @apply link;
+  }
+  .prose-moon ul {
+    @apply list-disc space-y-2 pl-6;
+  }
+  .prose-moon ol {
+    @apply list-decimal space-y-2 pl-6;
+  }
+  .prose-moon blockquote {
+    @apply border-l-2 border-glow-300/60 pl-4 italic text-moon-300;
+  }
+  .prose-moon img {
+    @apply my-6 h-auto max-w-full rounded-xl;
+  }
+  .prose-moon table {
+    @apply my-6 w-full border-collapse text-sm;
+  }
+  .prose-moon th,
+  .prose-moon td {
+    @apply border border-line px-3 py-2 text-left align-top;
+  }
+  .prose-moon th {
+    @apply bg-white/[0.06] font-semibold text-moon-50;
+  }
+  .prose-moon code {
+    @apply rounded bg-white/10 px-1 py-0.5 text-[0.9em];
+  }
+  .prose-moon pre {
+    @apply overflow-x-auto rounded-xl bg-ink-3 p-4 text-sm;
   }
 }
