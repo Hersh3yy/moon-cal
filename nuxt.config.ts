@@ -43,6 +43,9 @@ export default defineNuxtConfig({
   },
   nitro: {
     prerender: {
+      // blog/slug.html instead of blog/slug/index.html, so Netlify serves /blog/slug without
+      // a 301 to the trailing-slash URL (canonical and sitemap use the slash-less form).
+      autoSubfolderIndex: false,
       crawlLinks: true,
       routes: ['/', '/blog', '/sitemap.xml', '/robots.txt'],
       failOnError: false,
