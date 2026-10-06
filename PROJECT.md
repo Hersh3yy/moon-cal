@@ -14,7 +14,7 @@
 **Repo** · `github.com/Hersh3yy/moon-cal` · **one branch: `main`**, commit and push straight to it (Hiren's rule). No feature branches.
 **Hosting** · Netlify (site `cute-bienenstitch-4060c5` → lunatrack.info), `yarn build` with the Netlify preset (`netlify.toml`): static pages on the CDN, `/api/*` as a function. Env vars: `NUXT_MOON_API_KEY`, `NUXT_GEOCODE_API_KEY` (old `NUXT_PUBLIC_*` names still read as fallback).
 **ClickUp** · Lunatrack list `901508497689` — not synced this session (`CLICKUP_API_KEY` unset in this shell)
-**Last assessed** · 2026-10-02
+**Last assessed** · 2026-10-06
 
 ---
 
@@ -28,6 +28,7 @@ node .output/server/index.mjs   # preview the production build
 npx nuxi typecheck    # vue-tsc, must be clean before committing
 yarn export:posts     # dump the Hygraph blog to content/ (backup + VAMS import source)
 ```
+New machine or fresh chat: paste `docs/session-kickoff.md` into the session; it has the clone/env/run steps and the house rules.
 Needs `.env` with `NUXT_MOON_API_KEY` and `NUXT_GEOCODE_API_KEY` (see `.env.example`; the legacy `NUXT_PUBLIC_*` names still work). Keys are read only by the Nitro routes under `server/api/`. Blog needs no key. Gotcha: the handler cache persists under `.nuxt/cache` between local builds — the post handlers bypass it during prerender, but if anything else looks stale, `rm -rf .nuxt/cache`. Lighthouse: `npx lighthouse http://localhost:3000/ --only-categories=performance,accessibility,best-practices,seo` (local numbers are pessimistic: no brotli, no CDN).
 
 ## Status
@@ -185,6 +186,11 @@ Tracks, not a schedule. f7/f8 are the "more stats" you asked for; f9 is the stra
 ---
 
 ## Diary
+
+### 2026-10-06 — handoff: pick it up anywhere
+- Checked state: `main` in sync with `origin/main`, working tree clean, nothing committed since 2026-10-02. Live: home, `/api/moon`, posts all 200; sitemap 32 URLs; the trailing-slash fix is deployed.
+- Hiren: "renewed, what I see online, and a plan to work on from a coffee place". Wrote `docs/session-kickoff.md` (paste-in block for a fresh session on another laptop: clone, `.env` names and where the values live, run steps, house rules, file map, next-up list). Published the launch pad as a private web page (link in the chat and in memory) mirroring this roadmap.
+- No app code changed. Launch pad unchanged: Sat 1–4, Sun 1–3, buffer, majors later.
 
 ### 2026-10-02 — shipped to main; data strategy; weekend launch pad
 - Hiren: "push the improvements", "plan the rest", "create a launch pad I can stand on this weekend". Deleted the two scratch files, merged `origin/main` into the branch (conflict: `components/TheMoon.vue`, deleted), fast-forwarded `main`, pushed (`2b308dd`), deleted `renewal-fixes`. **One branch now.**
