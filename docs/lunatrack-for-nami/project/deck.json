@@ -1,0 +1,18 @@
+{
+  "v": 4,
+  "createdOnFiles": {"v": 1, "at": "2026-10-14T12:00:00Z"},
+  "lists": "css",
+  "title": "Lunatrack for Nami",
+  "order": ["cover", "problem", "feel", "journey", "sources", "moonmath", "eclipses", "saved", "key", "oops", "scores", "roadmap", "turn"],
+  "sections": {
+    "s1": {"description": "What Lunatrack is, why it exists, and how it feels to use", "start": "cover"},
+    "s2": {"description": "Inside: one question's trip, where the numbers come from, drawing the moon, eclipses", "start": "journey"},
+    "s3": {"description": "Where things are remembered, the hidden key, and a day-drifting bug", "start": "saved"},
+    "s4": {"description": "The real scores, the road ahead, and a game", "start": "scores"}
+  },
+  "faces": {
+    "fredoka": {"family": "Fredoka", "href": "https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400;600;800&display=swap"},
+    "nunito": {"family": "Nunito", "href": "https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&family=Nunito:wght@400;600;800&display=swap"}
+  },
+  "designSystems": []
+}

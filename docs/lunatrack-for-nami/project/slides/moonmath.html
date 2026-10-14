@@ -1,0 +1,20 @@
+<section id="moonmath" data-transition="push" style="background:#0B1026;color:#FFF7EC;font-family:'Nunito', Verdana, sans-serif;padding:128px;display:flex;flex-direction:column;gap:28px;overflow:hidden">
+<p style="font-size:28px;font-weight:800;color:#FFC23C;letter-spacing:3px;text-transform:uppercase">The trick behind the picture</p>
+<h2 style="font-family:'Fredoka', Verdana, sans-serif;font-size:80px;font-weight:600;line-height:1.1;margin:0">How it draws the right shape</h2>
+<p style="font-size:34px;line-height:1.4;width:1100px;color:#D9DCF2;margin:0">It starts with a full, bright Moon, then lays a dark shadow on top. The only question is: how curved is the shadow's edge?</p>
+<div data-build-in="pop order 1" style="position:absolute;left:150px;top:470px;width:300px;display:flex;flex-direction:column;align-items:center;gap:16px">
+<div style="width:220px;height:220px;border-radius:50%;background:#2A2F55;overflow:hidden;position:relative;box-shadow:0 0 40px rgba(255,194,60,0.25)"><div style="position:absolute;right:0;top:0;width:110px;height:220px;background:radial-gradient(circle at 100% 50%, #FFE8B8 0%, #E9C98A 100%)"></div></div>
+<p style="font-size:26px;text-align:center;color:#B9BEE6">Quarter of the month in<br><strong style="color:#19C3B1">edge is a straight line</strong></p>
+</div>
+<div data-build-in="pop order 2" style="position:absolute;left:530px;top:470px;width:300px;display:flex;flex-direction:column;align-items:center;gap:16px">
+<div style="width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at 40% 40%, #FFE8B8, #E9C98A);overflow:hidden;position:relative;box-shadow:0 0 40px rgba(255,194,60,0.35)"><div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 150% 50%, transparent 42%, #2A2F55 60%)"></div></div>
+<p style="font-size:26px;text-align:center;color:#B9BEE6">Almost full<br><strong style="color:#FFC23C">edge curves wide</strong></p>
+</div>
+<div data-build-in="rise order 3" style="position:absolute;left:940px;top:450px;width:840px;background:#151A3D;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px">
+<p style="font-size:30px;font-weight:800;color:#FFC23C;margin:0">The checkable bit</p>
+<p style="font-size:30px;line-height:1.45;color:#D9DCF2;margin:0">One full moon to the next takes <strong style="color:#FFF7EC">29.5 days</strong>. So a full moon is <strong style="color:#FFF7EC">29.5 &divide; 2 = 14.75 days</strong> after a new moon.</p>
+<p style="font-size:30px;line-height:1.45;color:#D9DCF2;margin:0">And the shadow's curve uses the cosine of how far through you are. A quarter in, that is cos of 90&deg; = <strong style="color:#19C3B1">0</strong> &rarr; no curve &rarr; a perfect half Moon.</p>
+</div>
+<p data-build-in="fade order 4" style="position:absolute;left:128px;top:880px;width:1664px;font-size:30px;line-height:1.4;color:#FFC23C;margin:0">Just 20 lines of maths, exact every time. No pile of photos to flip between.</p>
+<aside>The picture is one bright Moon with a shadow laid over it; the shadow edge is an ellipse whose width is the cosine of the phase. Ask Nami: cos of 90 degrees is 0. If the curve is zero, what shape of Moon do you see? (A half.)</aside>
+</section>

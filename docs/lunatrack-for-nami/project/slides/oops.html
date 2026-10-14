@@ -1,0 +1,17 @@
+<section id="oops" data-transition="fade" style="background:#FFF7EC;color:#151A3D;font-family:'Nunito', Verdana, sans-serif;padding:128px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:28px;font-weight:800;color:#6A4BE8;letter-spacing:3px;text-transform:uppercase">Honest about bugs</p>
+<h2 style="font-family:'Fredoka', Verdana, sans-serif;font-size:80px;font-weight:600;line-height:1.1;margin:0">When a date showed the wrong day</h2>
+<p style="font-size:34px;line-height:1.45;width:1200px;color:#3A3A52;margin:0">A full moon on the <strong>14th</strong> could show up as the <strong>13th</strong> for some people. Nothing was broken in space; it was a timezone trap.</p>
+<div style="display:flex;gap:36px;margin-top:8px;align-items:stretch">
+<div data-build-in="rise order 1" style="flex:1;background:#ECE8F7;border-radius:28px;padding:40px">
+<p style="font-size:30px;font-weight:800;color:#9A4D78;margin:0 0 10px">THE TRAP</p>
+<p style="font-size:30px;line-height:1.45;color:#3A3A52">A bare date with no time is read as <strong>midnight in London</strong>. If you live west of London, midnight there is still <em>yesterday</em> where you are, so the day slips back one.</p>
+</div>
+<div data-build-in="rise order 2" style="flex:1;background:#151A3D;border-radius:28px;padding:40px;color:#FFF7EC">
+<p style="font-size:30px;font-weight:800;color:#19C3B1;margin:0 0 10px">THE FIX</p>
+<p style="font-size:30px;line-height:1.45;color:#D9DCF2">Read every bare date as <strong>midnight where <em>you</em> are</strong>, not in London. One small helper, and the day stops drifting.</p>
+</div>
+</div>
+<p data-build-in="fade order 3" style="font-size:30px;line-height:1.4;color:#5A5A74;margin-top:4px">Little bugs like this are not about space being hard. They are about computers and clocks disagreeing about "when is today".</p>
+<aside>Computers treat a date-only text as UTC (London) midnight, then show it in the viewer's zone, so it can slip a day for anyone to the west. The fix parses it as local midnight. Ask Nami: if it is midnight in London, what day is it in New York? (Still the day before.)</aside>
+</section>
